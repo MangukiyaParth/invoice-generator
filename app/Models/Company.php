@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Company extends Model
+{
+     protected $fillable = [
+        'logo',
+        'name',
+        'email',
+        'address',
+        'city',
+        'state',
+        'country',
+        'zipcode',
+        'gst_number',
+        'lut_number',
+        'euid_number',
+        'terms_conditions',
+        'notes',
+        'created_by',
+    ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'created_by', 'id');
+    }
+}

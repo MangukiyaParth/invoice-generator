@@ -1,0 +1,459 @@
+@extends('layouts.main')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                        <h3 class="card-title">Edit Invoice</h3>
+                </div>
+                <div class="card-body">
+                    <form id="invoiceForm" method="POST" action="{{ route('invoice.update', $invoice->id) }}">
+                        @csrf
+                        @method('PUT')
+                        <!-- Top Section: Company & Customer Selection + Invoice Details -->
+                        <div class="row row-gap">
+                            <!-- Left Side: Company & Customer Selection -->
+                            <div class="col-xl-6 col-12">
+                                <div class="row">
+                                    <div class="form-group col-md-6 mb-3">
+                                        <label class="form-label">Company</label>
+                                        <select class="form-select" name="company" id="companySelect" required>
+                                            <option value="">Select Company</option>
+                                            @foreach($companies ?? [] as $company)
+                                                <option value="{{ $company->id }}" {{ $invoice->company == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 mb-3">
+                                        <label class="form-label">Customer</label>
+                                        <select class="form-select" name="customer" id="customerSelect" required>
+                                            <option value="">Select Customer</option>
+                                            @foreach($customers ?? [] as $customer)
+                                                <option value="{{ $customer->id }}" {{ $invoice->customer == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Terms</label>
+                                    <textarea class="form-control" name="terms" rows="2" placeholder="Enter payment terms and conditions">{{ $invoice->terms }}</textarea>
+                                </div>
+                                
+                                <!-- Company Preview -->
+                                <div id="companyPreview" class="border p-3 mb-3" style="display: none;">
+                                    <h6>Company Details</h6>
+                                    <div id="companyDetails"></div>
+                                </div>
+                                
+                                <!-- Customer Preview -->
+                                <div id="customerPreview" class="border p-3" style="display: none;">
+                                    <h6>Customer Details</h6>
+                                    <div id="customerDetails"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Side: Invoice Details -->
+                            <div class="col-xl-6 col-12">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Invoice Date</label>
+                                        <input type="date" class="form-control" name="invoice_date" value="{{ $invoice->invoice_date }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Due Date</label>
+                                        <input type="date" class="form-control" name="due_date" value="{{ $invoice->due_date }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Currency</label>
+                                        <select class="form-select" name="currency" id="currencySelect" required>
+                                            <option value="INR" {{ $invoice->currency == 'INR' ? 'selected' : '' }}>₹ Rupees (INR)</option>
+                                            <option value="USD" {{ $invoice->currency == 'USD' ? 'selected' : '' }}>$ Dollar (USD)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Invoice Number</label>
+                                        <input type="text" class="form-control" name="invoice_number" value="{{ $invoice->invoice_number }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr/>
+                        <!-- Items Section -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">Invoice Items</h5>
+                                    <button type="button" class="btn btn-success" id="addItem">Add Item</button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="itemsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>HSN/SAC</th>
+                                                <th>Quantity</th>
+                                                <th>Rate</th>
+                                                <th>IGST (%)</th>
+                                                <th>Total Amount <span id="currencySymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span></th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="itemsBody">
+                                            @foreach($invoice->items as $index => $item)
+                                            <tr class="item-row">
+                                                <td><input type="text" class="form-control" name="items[{{ $index }}][name]" value="{{ $item->name }}" required></td>
+                                                <td><input type="text" class="form-control" name="items[{{ $index }}][description]" value="{{ $item->description }}" required></td>
+                                                <td><input type="number" class="form-control hsn" name="items[{{ $index }}][hsn]" value="{{ $item->hsn }}" min="1" required></td>
+                                                <td><input type="number" class="form-control quantity" name="items[{{ $index }}][quantity]" value="{{ $item->quantity }}" step="0.01" min="1" required></td>
+                                                <td><input type="number" class="form-control rate" name="items[{{ $index }}][rate]" value="{{ $item->rate }}" step="0.01" min="0" required></td>
+                                                <td>
+                                                    <select class="form-select igst" name="items[{{ $index }}][igst]">
+                                                        <option value="0" {{ $item->igst == 0 ? 'selected' : '' }}>0</option>
+                                                        <option value="5" {{ $item->igst == 5 ? 'selected' : '' }}>5</option>
+                                                        <option value="12" {{ $item->igst == 12 ? 'selected' : '' }}>12</option>
+                                                        <option value="18" {{ $item->igst == 18 ? 'selected' : '' }}>18</option>
+                                                        <option value="28" {{ $item->igst == 28 ? 'selected' : '' }}>28</option>
+                                                    </select>
+                                                </td>
+                                                <td><input type="text" class="form-control total-amount" name="items[{{ $index }}][total_amount]" value="{{ $item->total_amount }}" readonly></td>
+                                                <td>
+                                                    @if($index > 0)
+                                                    <button type="button" class="btn btn-danger btn-sm remove-item" data-item-id="{{ $item->id }}">Remove</button>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- Payment Section -->
+                                <div class="row mt-3">
+                                    <div class="col-md-7"></div>
+                                    <div class="col-md-5">
+                                        <div class="mb-3">
+                                            <label class="form-label">Payment Made</label>
+                                            <input type="number" class="form-control" id="paymentMade" name="payment_made" step="0.01" min="0" value="{{ $invoice->paid_amount }}" placeholder="Enter payment amount">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Summary Section -->
+                                <div class="row mt-4">
+                                    <div class="col-md-7"></div>
+                                    <div class="col-md-5">
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-end border-0"><strong>Sub Total</strong></td>
+                                                    <td class="text-end border-0"><span id="summarySymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="subTotal">0.00</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-end border-0"><strong>IGST</strong></td>
+                                                    <td class="text-end border-0"><span id="taxSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="totalTax">0.00</span></td>
+                                                </tr>
+                                                <tr class="border-top">
+                                                    <td class="text-end"><strong>Total Amount</strong></td>
+                                                    <td class="text-end"><strong><span id="totalSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="grandTotal">0.00</span></strong></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-end border-0"><strong>Payment Made</strong></td>
+                                                    <td class="text-end border-0"><span id="paymentSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="paymentAmount">0.00</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-end border-0"><strong>Balance Due</strong></td>
+                                                    <td class="text-end border-0"><span id="balanceSymbol">{{ $invoice->currency == 'USD' ? '$' : '₹' }}</span><span id="balanceDue">0.00</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-end border-0"><strong>Total in Words</strong></td>
+                                                    <td class="text-end border-0"><em id="totalInWords">Zero Only</em></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="modal-footer flex gap-2">
+                            <a href="{{ route('invoice.index') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@endsection
+@push('styles')
+<style>
+input[readonly] {
+    background-color: #dde2e7 !important;
+}
+</style>
+@endpush
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let itemIndex = {{ count($invoice->items) }};
+    
+    // Add new item row
+    document.getElementById('addItem').addEventListener('click', function() {
+        const tbody = document.getElementById('itemsBody');
+        const newRow = `
+            <tr class="item-row">
+                <td><input type="text" class="form-control" name="items[${itemIndex}][name]" required></td>
+                <td><input type="text" class="form-control" name="items[${itemIndex}][description]" required></td>
+                <td><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]" min="1" required></td>
+                <td><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" required></td>
+                <td><input type="number" class="form-control rate" name="items[${itemIndex}][rate]" step="0.01" min="0" required></td>
+                <td>
+                    <select class="form-select igst" name="items[${itemIndex}][igst]">
+                        <option value="0">0</option>
+                        <option value="5">5</option>
+                        <option value="12">12</option>
+                        <option value="18">18</option>
+                        <option value="28">28</option>
+                    </select>
+                </td>
+                <td><input type="text" class="form-control total-amount" name="items[${itemIndex}][total_amount]" readonly></td>
+                <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+            </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', newRow);
+        itemIndex++;
+    });
+    
+    // Remove item row
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-item')) {
+            if (document.querySelectorAll('.item-row').length > 1) {
+                const itemId = e.target.getAttribute('data-item-id');
+                const row = e.target.closest('tr');
+                
+                if (itemId) {
+                    // Show SweetAlert confirmation for existing items
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'You want to delete this item?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Continue',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`{{ url('/invoice/item') }}/${itemId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    return response.json();
+                                }
+                                throw new Error('Network response was not ok');
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    row.remove();
+                                    calculateSummary();
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                        }
+                    });
+                } else {
+                    // Directly remove new items
+                    row.remove();
+                    calculateSummary();
+                }
+            }
+        }
+    });
+    
+    // Calculate total amount
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('quantity') || e.target.classList.contains('rate') || e.target.classList.contains('igst')) {
+            calculateRowTotal(e.target.closest('tr'));
+        }
+        if (e.target.id === 'paymentMade') {
+            calculateSummary();
+        }
+    });
+    
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('igst')) {
+            calculateRowTotal(e.target.closest('tr'));
+        }
+    });
+    
+    function calculateRowTotal(row) {
+        const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+        const rate = parseFloat(row.querySelector('.rate').value) || 0;
+        const igst = parseFloat(row.querySelector('.igst').value) || 0;
+        
+        const subtotal = quantity * rate;
+        const tax = (subtotal * igst) / 100;
+        const total = subtotal + tax;
+        
+        row.querySelector('.total-amount').value = total.toFixed(2);
+        
+        calculateSummary();
+    }
+    
+    function calculateSummary() {
+        const currency = document.getElementById('currencySelect').value;
+        const symbol = currency === 'USD' ? '$' : '₹';
+        
+        let subTotal = 0;
+        let totalTaxAmount = 0;
+        
+        document.querySelectorAll('.item-row').forEach(row => {
+            const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+            const rate = parseFloat(row.querySelector('.rate').value) || 0;
+            const igst = parseFloat(row.querySelector('.igst').value) || 0;
+            
+            const itemSubtotal = quantity * rate;
+            const itemTax = (itemSubtotal * igst) / 100;
+            
+            subTotal += itemSubtotal;
+            totalTaxAmount += itemTax;
+        });
+        
+        const grandTotal = subTotal + totalTaxAmount;
+        const paymentMade = parseFloat(document.getElementById('paymentMade').value) || 0;
+        const balanceDue = grandTotal - paymentMade;
+        
+        // Update summary display
+        document.getElementById('subTotal').textContent = subTotal.toFixed(2);
+        document.getElementById('totalTax').textContent = totalTaxAmount.toFixed(2);
+        document.getElementById('grandTotal').textContent = grandTotal.toFixed(2);
+        document.getElementById('paymentAmount').textContent = paymentMade.toFixed(2);
+        document.getElementById('balanceDue').textContent = balanceDue.toFixed(2);
+        
+        // Update currency symbols
+        document.getElementById('summarySymbol').textContent = symbol;
+        document.getElementById('taxSymbol').textContent = symbol;
+        document.getElementById('totalSymbol').textContent = symbol;
+        document.getElementById('paymentSymbol').textContent = symbol;
+        document.getElementById('balanceSymbol').textContent = symbol;
+        
+        // Update total in words
+        const totalInWords = numberToWords(grandTotal, currency);
+        document.getElementById('totalInWords').textContent = totalInWords;
+    }
+    
+    function numberToWords(amount, currency) {
+        const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
+        function convertHundreds(num) {
+            let result = '';
+            if (num >= 100) {
+                result += ones[Math.floor(num / 100)] + ' Hundred ';
+                num %= 100;
+            }
+            if (num >= 20) {
+                result += tens[Math.floor(num / 10)] + ' ';
+                num %= 10;
+            } else if (num >= 10) {
+                result += teens[num - 10] + ' ';
+                num = 0;
+            }
+            if (num > 0) {
+                result += ones[num] + ' ';
+            }
+            return result;
+        }
+        
+        if (amount === 0) return 'Zero Only';
+        
+        let rupees = Math.floor(amount);
+        const paise = Math.round((amount - rupees) * 100);
+        
+        let result = '';
+        
+        if (rupees >= 10000000) {
+            result += convertHundreds(Math.floor(rupees / 10000000)) + 'Crore ';
+            rupees %= 10000000;
+        }
+        if (rupees >= 100000) {
+            result += convertHundreds(Math.floor(rupees / 100000)) + 'Lakh ';
+            rupees %= 100000;
+        }
+        if (rupees >= 1000) {
+            result += convertHundreds(Math.floor(rupees / 1000)) + 'Thousand ';
+            rupees %= 1000;
+        }
+        if (rupees > 0) {
+            result += convertHundreds(rupees);
+        }
+        
+        const currencyName = currency === 'USD' ? 'Dollar' : 'Rupee';
+        const subUnit = currency === 'USD' ? 'Cent' : 'Paise';
+        
+        result = (currency === 'USD' ? 'US ' : 'Indian ') + currencyName + ' ' + result.trim();
+        
+        if (paise > 0) {
+            result += ' and ' + convertHundreds(paise).trim() + ' ' + subUnit;
+        }
+        
+        return result + ' Only';
+    }
+    
+    // Update currency symbol in table header
+    document.getElementById('currencySelect').addEventListener('change', function() {
+        const currency = this.value;
+        const symbol = currency === 'USD' ? '$' : '₹';
+        document.getElementById('currencySymbol').textContent = symbol;
+        
+        // Recalculate all rows
+        document.querySelectorAll('.item-row').forEach(row => {
+            calculateRowTotal(row);
+        });
+    });
+    
+    // Initial calculation
+    calculateSummary();
+    
+    // Auto-update due date when invoice date changes
+    document.querySelector('input[name="invoice_date"]').addEventListener('change', function() {
+        document.querySelector('input[name="due_date"]').value = this.value;
+    });
+    
+    // Company selection - auto select currency
+    document.getElementById('companySelect').addEventListener('change', function() {
+        const companyId = this.value;
+        if (companyId) {
+            fetch(`{{ url('/company') }}/${companyId}/details`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.currency) {
+                        document.getElementById('currencySelect').value = data.currency;
+                        // Update currency symbol and recalculate
+                        const symbol = data.currency === 'USD' ? '$' : '₹';
+                        document.getElementById('currencySymbol').textContent = symbol;
+                        calculateSummary();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    });
+});
+</script>
+@endpush
