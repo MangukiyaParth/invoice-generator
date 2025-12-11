@@ -21,8 +21,8 @@ return new class extends Migration
                 $table->string('state');
                 $table->string('country');
                 $table->string('zip_code');
-                $table->string('place_of_supply');
-                $table->string('gst_number');
+                $table->string('place_of_supply')->nullable();
+                $table->string('gst_number')->nullable();
                 $table->integer('created_by')->default(0);
                 $table->timestamps();
             });

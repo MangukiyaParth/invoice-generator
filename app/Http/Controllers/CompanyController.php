@@ -52,7 +52,6 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'logo' => 'required|file|mimes:png,jpg,jpeg|max:51200',
             'name' => 'required',
             'email' => 'required|email',
             'address' => 'required',
@@ -61,16 +60,14 @@ class CompanyController extends Controller
             'state' => 'required',
             'zip_code' => 'required',
             'gst_number' => 'required',
-            'lut_number' => 'required',
-            'euid_number' => 'required',
-            'currency'     => 'required',
-
+            'currency' => 'required',
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         if ($validator->fails()) {
-            $messages = $validator->getMessageBag();
-            return redirect()->back()->with('error', $messages->first());
+            return redirect()->back()->withErrors($validator)->withInput();
         }
+       
         $path = $request->file('logo')->store('uploads/images/company_logo', 'public');
         $company = new Company();
         $company->name = $request->name;
@@ -82,13 +79,12 @@ class CompanyController extends Controller
         $company->country = $request->country;
         $company->zip_code = $request->zip_code;
         $company->gst_number = $request->gst_number;
-        $company->lut_number = $request->lut_number;
-        $company->euid_number = $request->euid_number;
-        $company->terms_conditions = $request->terms_conditions;
-        $company->notes = $request->notes;
+        $company->lut_number = $request->lut_number ?? null;
+        $company->euid_number = $request->euid_number ?? null;
+        $company->terms_conditions = $request->terms_conditions ?? '';
+        $company->notes = $request->notes ?? '';
         $company->created_by = Auth::user()->id;
-        
-        $company->logo = $path ?? '';
+        $company->logo = $path;
 
         $company->save();
 
@@ -116,15 +112,11 @@ class CompanyController extends Controller
             'state' => 'required',
             'zip_code' => 'required',
             'gst_number' => 'required',
-            'lut_number' => 'required',
-            'euid_number' => 'required',
             'currency'     => 'required',
-           
         ]);
 
         if ($validator->fails()) {
-            $messages = $validator->getMessageBag();
-            return redirect()->back()->with('error', $messages->first());
+            return redirect()->back()->withErrors($validator)->withInput();
         }
         
         if ($request->hasFile('logo')) {
@@ -143,8 +135,8 @@ class CompanyController extends Controller
         $company->country = $request->country;
         $company->zip_code = $request->zip_code;
         $company->gst_number = $request->gst_number;
-        $company->lut_number = $request->lut_number;
-        $company->euid_number = $request->euid_number;
+        $company->lut_number = $request->lut_number ?? null;
+        $company->euid_number = $request->euid_number ?? null;
         $company->terms_conditions = $request->terms_conditions ?? '';
         $company->notes = $request->notes ?? '';
         $company->save();

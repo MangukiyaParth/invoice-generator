@@ -17,13 +17,13 @@
                     <div class="mb-3 col-md-6">
                         <label for="name" class="form-label">Full Name</label>
                         <input type="text" name="name" id="name" class="form-control" 
-                               value="{{ old('name', $customer->name) }}" placeholder="Enter Name" required>
+                               value="{{ old('name', $customer->name) }}" placeholder="Enter Name" >
                     </div>
 
                     <div class="mb-3 col-md-6">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" name="email" id="email" class="form-control" 
-                               value="{{ old('email', $customer->email) }}" placeholder="Enter Email" required>
+                               value="{{ old('email', $customer->email) }}" placeholder="Enter Email" >
                     </div>
 
                     <div class="mb-3">
@@ -34,37 +34,37 @@
                     <div class="mb-3 col-md-6">
                         <label for="city" class="form-label">City</label>
                         <input type="text" id="city" name="city" class="form-control"
-                               value="{{ old('city', $customer->city) }}" placeholder="Enter City" required>
+                               value="{{ old('city', $customer->city) }}" placeholder="Enter City" >
                     </div>
 
                     <div class="mb-3 col-md-6">
                         <label for="state" class="form-label">State</label>
                         <input type="text" id="state" name="state" class="form-control"
-                               value="{{ old('state', $customer->state) }}" placeholder="Enter State" required>
+                               value="{{ old('state', $customer->state) }}" placeholder="Enter State" >
                     </div>
 
                     <div class="mb-3 col-md-6">
                         <label for="country" class="form-label">Country</label>
                         <input type="text" id="country" name="country" class="form-control"
-                               value="{{ old('country', $customer->country) }}" placeholder="Enter Country" required>
+                               value="{{ old('country', $customer->country) }}" placeholder="Enter Country" >
                     </div>
 
                     <div class="mb-3 col-md-6">
                         <label for="zip_code" class="form-label">Zip Code</label>
                         <input type="text" id="zip_code" name="zip_code" class="form-control"
-                               value="{{ old('zip_code', $customer->zip_code) }}" placeholder="Enter Zip Code" required>
+                               value="{{ old('zip_code', $customer->zip_code) }}" placeholder="Enter Zip Code" >
                     </div>
 
                     <div class="mb-3 col-md-6">
                         <label for="gst_number" class="form-label">GSTIN Number</label>
                         <input type="text" id="gst_number" name="gst_number" class="form-control"
-                               value="{{ old('gst_number', $customer->gst_number) }}" required>
+                               value="{{ old('gst_number', $customer->gst_number) }}" >
                     </div>
 
                     <div class="mb-3 col-md-6">
                         <label for="place_of_supply" class="form-label">Place of Supply</label>
                         <input type="text" id="place_of_supply" name="place_of_supply" class="form-control"
-                               value="{{ old('place_of_supply', $customer->place_of_supply) }}" required>
+                               value="{{ old('place_of_supply', $customer->place_of_supply) }}" >
                     </div>
 
                     <div class="modal-footer flex gap-2">
@@ -77,3 +77,52 @@
     </div>
 
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $('form').on('submit', function(e) {
+        let isValid = true;
+        
+        // Clear previous errors
+        $('.error-message').remove();
+        $('.is-invalid').removeClass('is-invalid');
+        
+        // Required fields validation
+        const requiredFields = {
+            'name': 'Name is required',
+            'email': 'Email is required',
+            'address': 'Address is required',
+            'city': 'City is required',
+            'state': 'State is required',
+            'country': 'Country is required',
+            'zip_code': 'Zip code is required'
+        };
+        
+        $.each(requiredFields, function(field, message) {
+            const input = $('[name="' + field + '"]');
+            const value = input.val() ? input.val().trim() : '';
+            
+            if (value === '') {
+                input.addClass('is-invalid');
+                input.closest('.mb-3').append('<div class="error-message text-danger mt-1">' + message + '</div>');
+                isValid = false;
+            }
+        });
+        
+        // Email validation
+        const email = $('[name="email"]').val().trim();
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            $('[name="email"]').addClass('is-invalid');
+            $('[name="email"]').closest('.mb-3').append('<div class="error-message text-danger mt-1">Please enter a valid email</div>');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
+@endpush

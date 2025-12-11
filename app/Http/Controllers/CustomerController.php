@@ -52,8 +52,6 @@ class CustomerController extends Controller
             'address' => 'required',
             'country' => 'required',
             'state' => 'required',
-            'gst_number' => 'required',
-            'place_of_supply' => 'required',
             'zip_code' => 'required',
         ]);
 
@@ -70,8 +68,8 @@ class CustomerController extends Controller
         $customer->state = $request->state;
         $customer->country = $request->country;
         $customer->zip_code = $request->zip_code;
-        $customer->gst_number = $request->gst_number;
-        $customer->place_of_supply = $request->place_of_supply;
+        $customer->gst_number = $request->gst_number ?? null;
+        $customer->place_of_supply = $request->place_of_supply ?? null;
         $customer->created_by = Auth::user()->id;
         $customer->save();
 
@@ -97,8 +95,6 @@ class CustomerController extends Controller
             'address' => 'required',
             'country' => 'required',
             'state' => 'required',
-            'gst_number' => 'required',
-            'place_of_supply' => 'required',
             'zip_code' => 'required',
         ]);
 
@@ -114,8 +110,8 @@ class CustomerController extends Controller
         $customer->state = $request->state;
         $customer->country = $request->country;
         $customer->zip_code = $request->zip_code;
-        $customer->gst_number = $request->gst_number;
-        $customer->place_of_supply = $request->place_of_supply;
+        $customer->gst_number = $request->gst_number ?? null;
+        $customer->place_of_supply = $request->place_of_supply ?? null;
         $customer->save();
 
         return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');

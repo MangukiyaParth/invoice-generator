@@ -19,7 +19,7 @@
                                 <div class="row">
                                     <div class="form-group col-md-6 mb-3">
                                         <label class="form-label">Company</label>
-                                        <select class="form-select" name="company" id="companySelect" required>
+                                        <select class="form-select" name="company" id="companySelect" >
                                             <option value="">Select Company</option>
                                             @foreach($companies ?? [] as $company)
                                                 <option value="{{ $company->id }}" {{ $invoice->company == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
@@ -28,7 +28,7 @@
                                     </div>
                                     <div class="form-group col-md-6 mb-3">
                                         <label class="form-label">Customer</label>
-                                        <select class="form-select" name="customer" id="customerSelect" required>
+                                        <select class="form-select" name="customer" id="customerSelect" >
                                             <option value="">Select Customer</option>
                                             @foreach($customers ?? [] as $customer)
                                                 <option value="{{ $customer->id }}" {{ $invoice->customer == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
@@ -59,11 +59,11 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Invoice Date</label>
-                                        <input type="date" class="form-control" name="invoice_date" value="{{ $invoice->invoice_date }}" required>
+                                        <input type="date" class="form-control" name="invoice_date" value="{{ $invoice->invoice_date }}" >
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Due Date</label>
-                                        <input type="date" class="form-control" name="due_date" value="{{ $invoice->due_date }}" required>
+                                        <input type="date" class="form-control" name="due_date" value="{{ $invoice->due_date }}" >
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
@@ -452,6 +452,53 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(error => console.error('Error:', error));
+        }
+    });
+
+    // Form validation
+    $('#invoiceForm').on('submit', function(e) {
+        let isValid = true;
+        
+        $('.error-message').remove();
+        $('.is-invalid').removeClass('is-invalid');
+        
+        const requiredFields = {
+            'company': 'Company is required',
+            'customer': 'Customer is required',
+            'invoice_date': 'Invoice date is required',
+            'due_date': 'Due date is required'
+        };
+        
+        $.each(requiredFields, function(field, message) {
+            const input = $('[name="' + field + '"]');
+            const value = input.val() ? input.val().trim() : '';
+            
+            if (value === '') {
+                input.addClass('is-invalid');
+                input.closest('.form-group, .mb-3, .col-md-6').append('<div class="error-message text-danger mt-1">' + message + '</div>');
+                isValid = false;
+            }
+        });
+        
+        let hasValidItem = false;
+        $('.item-row').each(function() {
+            const name = $(this).find('[name*="[name]"]').val();
+            const quantity = $(this).find('[name*="[quantity]"]').val();
+            const rate = $(this).find('[name*="[rate]"]').val();
+            
+            if (name && quantity && rate) {
+                hasValidItem = true;
+            }
+        });
+        
+        if (!hasValidItem) {
+            $('#itemsTable').after('<div class="error-message text-danger mt-1">At least one complete item is required</div>');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            return false;
         }
     });
 });

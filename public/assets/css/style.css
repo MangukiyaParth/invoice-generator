@@ -288,6 +288,14 @@ body {
     font-weight: 500;
 }
 
+.error-message {
+    color: red;
+    font-size: 13px;
+    margin-top: 3px;
+    display: block;
+}
+
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .sidebar {

@@ -14,13 +14,14 @@ class Company extends Model
         'city',
         'state',
         'country',
-        'zipcode',
+        'zip_code',
         'gst_number',
         'lut_number',
         'euid_number',
         'terms_conditions',
         'notes',
         'created_by',
+        'currency',
     ];
 
     public function users()
