@@ -15,7 +15,7 @@
                      <div class="file-input-wrapper">
                         <input type="file" name="logo" id="logo" class="file-input" accept="image/*" onchange="previewImage(this, 'logo-preview')">
                         <label for="logo" class="file-input-label {{ $company->logo ? 'has-file' : '' }}">
-                            <img id="logo-preview" class="file-preview" src="{{ $company->logo ? asset('storage/' . $company->logo) : '' }}" alt="Icon preview" style="{{ $company->icon ? 'display: block;' : 'display: none;' }}">
+                            <img id="logo-preview" class="file-preview" src="{{ $company->logo ? asset('storage/' . $company->logo) : '' }}" alt="Icon preview" style="{{ $company->logo ? 'display: block;' : 'display: none;' }}">
                             <i class="fas fa-cloud-upload-alt file-input-icon"></i>
                             <span class="file-input-text">Choose icon file or drag and drop</span>
                         </label>
