@@ -20,6 +20,7 @@ class Company extends Model
         'euid_number',
         'terms_conditions',
         'notes',
+        'bank_details',
         'created_by',
         'currency',
     ];

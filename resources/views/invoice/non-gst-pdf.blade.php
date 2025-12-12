@@ -239,20 +239,13 @@
 <body>
     @php
         $subTotal = 0;
-        $totalIgst = 0;
         foreach($invoice->items ?? [] as $item) {
-            $qty = (float)$item->quantity;
-            $rate = (float)$item->rate;
-            $igstPercent = (float)$item->igst;
-            $itemTotal = $qty * $rate;
-            $igstAmount = ($itemTotal * $igstPercent) / 100;
-            $subTotal += $itemTotal;
-            $totalIgst += $igstAmount;
+            $subTotal += (float)$item->total_amount;
         }
-        $grandTotal = $subTotal + $totalIgst;
-        $paidTotal = $invoice->paid_amount ?? '0';
+        $grandTotal = $subTotal;
+        $paidTotal = (float)($invoice->paid_amount ?? 0);
         $dueTotal = $grandTotal - $paidTotal;
-        $currencySymbol = ($invoice->currency === 'INR') ? '₹' : (($invoice->currency === 'USD') ? '$' : (($invoice->currency === 'AUD') ? 'AU$' : ''));
+        $currencySymbol = ($invoice->currency === 'INR') ? '₹' : (($invoice->currency === 'USD') ? '$' : (($invoice->currency === 'AUD') ? 'AU$' : '₹'));
         
         function numberToWords($amount, $currency) {
             $ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
@@ -372,7 +365,7 @@
                         @if(!empty($invoice->company_name->logo))
                             <img src="{{ public_path('storage/'.$invoice->company_name->logo) }}" class="logo">
                         @endif
-                         <div class="company-info">
+                        <div class="company-info">
                             <h3>{{ strtoupper($invoice->company_name->name ?? '') }}</h3>
                             @if(!empty( $invoice->company_name->address ))<p><strong>Address:</strong> {{ $invoice->company_name->address ?? '' }}</p>@endif
                             @if(!empty( $invoice->company_name->email ))<p><strong>Email:</strong> {{ $invoice->company_name->email ?? '' }}</p>@endif
@@ -387,10 +380,10 @@
                         <div class="invoice-title">
                             <h1>INVOICE</h1>
                             <div class="invoice-number">{{ $invoice->invoice_number }}</div>
-                            <div class="balance-due">
+                            {{-- <div class="balance-due">
                                 <div class="label">Balance Due</div>
                                 <div class="{{ $dueTotal > 0 ? 'amount' : '' }}">{{ $currencySymbol }}{{ number_format((float)$dueTotal, 2) }}</div>
-                            </div>
+                            </div> --}}
                         </div>
                     </td>
                 </tr>
@@ -403,7 +396,7 @@
                 <td class="bill-to-cell">
                     <div class="bill-to">
                         <h3>Bill To</h3>
-                       <p><strong>{{ strtoupper($invoice->customer_name->name ?? '') }}</strong></p>
+                        <p><strong>{{ strtoupper($invoice->customer_name->name ?? '') }}</strong></p>
                         @if(!empty( $invoice->customer_name->address ))<p><strong>Address:</strong> {{ $invoice->customer_name->address ?? '' }}</p>@endif
                         @if(!empty( $invoice->customer_name->email ))<p><strong>Email:</strong> {{ $invoice->customer_name->email ?? '' }}</p>@endif
                         @if(!empty( $invoice->customer_name->city ))<p><strong>City:</strong> {{ $invoice->customer_name->city ?? '' }}</p>@endif
@@ -428,37 +421,21 @@
             <thead>
                 <tr>
                     <th style="width:5%; text-align:center;">#</th>
-                    <th style="width:35%; text-align:left;">Item and Description</th>
-                    <th style="width:10%; text-align:center;">HSN/SAC</th>
-                    <th style="width:8%; text-align:center;">Qty</th>
-                    <th style="width:12%; text-align:center;">Rate </th>
-                    <th style="width:12%; text-align:center;">IGST</th>
-                    <th style="width:15%; text-align:center;">Amount</th>
+                    <th style="width:15%; text-align:center;">Date</th>
+                    <th style="width:45%; text-align:left;">Item and Description</th>
+                    <th style="width:35%; text-align:center;">Amount</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($invoice->items ?? [] as $key => $item)
-                    @php
-                        $qty = (float)$item->quantity;
-                        $rate = (float)$item->rate;
-                        $igstPercent = (float)$item->igst;
-                        $itemTotal = $qty * $rate;
-                        $igstAmount = ($itemTotal * $igstPercent) / 100;
-                    @endphp
                     <tr>
                         <td class="text-center">{{ $key + 1 }}</td>
+                        <td class="text-center">{{ $invoice->invoice_date}}</td>
                         <td>
                             <strong>{{ $item->name }}</strong>
                             @if($item->description)
                                 <br><small style="color: #666;">{{ $item->description }}</small>
                             @endif
-                        </td>
-                        <td class="text-center">{{ $item->hsn ?? '-' }}</td>
-                        <td class="text-center">{{ number_format((float)$qty, 2) }}</td>
-                        <td class="text-center">{{ $currencySymbol }}{{ number_format((float)$rate, 2) }}</td>
-                        <td class="text-center">
-                            {{ $currencySymbol }}{{ number_format((float)$igstAmount, 2) }}
-                            <br><small style="color: #666;">({{ (float)$igstPercent }}%)</small>
                         </td>
                         <td class="text-center"><strong>{{ $currencySymbol }}{{ number_format((float)$item->total_amount, 2) }}</strong></td>
                     </tr>
@@ -466,7 +443,9 @@
             </tbody>
         </table>
 
-    <!-- BANK DETAILS AND TOTAL SECTION -->
+
+
+        <!-- BANK DETAILS AND TOTAL SECTION -->
         <div style="width: 100%; margin-top: 15px; display: table;">
             <!-- Bank Details -->
             <div style="width: 48%; float: left; padding-right: 2%;">
@@ -477,17 +456,13 @@
                 </div>
                 @endif
             </div>
-
-            <!-- TOTAL SECTION -->
-            <div class="totals-section"  style="width: 50%; float: right;">
+            
+            <!-- Total Section -->
+            <div class="totals-section" style="width: 50%; float: right;">
                 <table class="totals-table">
                     <tr>
                         <td class="label">Sub Total:</td>
                         <td class="amount">{{ $currencySymbol }}{{ number_format((float)$subTotal, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">IGST:</td>
-                        <td class="amount">{{ $currencySymbol }}{{ number_format((float)$totalIgst, 2) }}</td>
                     </tr>
                     <tr class="total-row">
                         <td class="label">Total Amount:</td>
@@ -495,7 +470,7 @@
                     </tr>
                     <tr>
                         <td class="label">Payment Made:</td>
-                        <td class="amount payment-made">(-) {{ $currencySymbol }}{{ number_format((float)$invoice->paid_amount ?? '0', 2) }}</td>
+                        <td class="amount payment-made">(-) {{ $currencySymbol }}{{ number_format($paidTotal, 2) }}</td>
                     </tr>
                     <tr>
                         <td class="label">Balance Due:</td>
@@ -503,16 +478,17 @@
                     </tr>
                     <tr>
                         <td class="label">Total Amount in Words:</td>
-                        <td class="amount"><em>{{ numberToWords($grandTotal, $invoice->currency) }}</em></td>
+                         <td class="amount"><em>{{ numberToWords($grandTotal, $invoice->currency) }}</em></td>
                     </tr>
                 </table>
             </div>
         </div>
+
         <div class="total-words">
           <!---->
         </div>
 
-         <!-- NOTES -->
+        <!-- NOTES -->
         @if($invoice->company_name->notes)
         <div class="notes-section" style="width:100%; text-align:center;">
             <p>{{ $invoice->company_name->notes }}</p>

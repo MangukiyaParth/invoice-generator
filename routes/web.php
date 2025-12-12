@@ -26,6 +26,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('invoice', InvoiceController::class);
     Route::get('/invoice/download/{id}', [InvoiceController::class, 'downloadPDF'])->name('invoice.pdf');
     Route::delete('/invoice/item/{id}', [InvoiceController::class, 'deleteItem'])->name('invoice.item.delete');
+
+    //non-gst invoice
+    Route::get('/invoice/non-gst/create', [InvoiceController::class, 'nonGstInvoiceCreate'])->name('invoice.non-gst');
+    Route::post('/invoice/non-gst/store', [InvoiceController::class, 'nonGstInvoiceStore'])->name('invoice.non-gst.store');
+    Route::get('/invoice/non-gst/download/{id}', [InvoiceController::class, 'nondownloadPDF'])->name('non.gst.invoice.pdf');
+    Route::get('/invoice/non-gst/edit/{id}', [InvoiceController::class, 'nonGstInvoiceEdit'])->name('non.gst.invoice.edit');
+    Route::put('/invoice/non-gst/update/{id}', [InvoiceController::class, 'nonGstInvoiceUpdate'])->name('non.gst.invoice.update');
 });
 
 Route::middleware('auth')->group(function () {

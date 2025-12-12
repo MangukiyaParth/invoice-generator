@@ -48,11 +48,6 @@ class CustomerController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
-            'city' => 'required',
-            'address' => 'required',
-            'country' => 'required',
-            'state' => 'required',
-            'zip_code' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -61,13 +56,13 @@ class CustomerController extends Controller
         }
 
         $customer = new Customer();
-        $customer->name = $request->name;
-        $customer->email = $request->email;
-        $customer->address = $request->address;
-        $customer->city = $request->city;
-        $customer->state = $request->state;
-        $customer->country = $request->country;
-        $customer->zip_code = $request->zip_code;
+        $customer->name = $request->name ?? null;
+        $customer->email = $request->email ?? null;
+        $customer->address = $request->address ?? null;
+        $customer->city = $request->city ?? null;
+        $customer->state = $request->state ?? null;
+        $customer->country = $request->country ?? null;
+        $customer->zip_code = $request->zip_code ?? null;
         $customer->gst_number = $request->gst_number ?? null;
         $customer->place_of_supply = $request->place_of_supply ?? null;
         $customer->created_by = Auth::user()->id;
@@ -91,11 +86,6 @@ class CustomerController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
-            'city' => 'required',
-            'address' => 'required',
-            'country' => 'required',
-            'state' => 'required',
-            'zip_code' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -103,13 +93,13 @@ class CustomerController extends Controller
             return redirect()->back()->with('error', $messages->first());
         }
 
-        $customer->name = $request->name;
-        $customer->email = $request->email;
-        $customer->address = $request->address;
-        $customer->city = $request->city;
-        $customer->state = $request->state;
-        $customer->country = $request->country;
-        $customer->zip_code = $request->zip_code;
+        $customer->name = $request->name ?? null;
+        $customer->email = $request->email ?? null;
+        $customer->address = $request->address ?? null;
+        $customer->city = $request->city ?? null;
+        $customer->state = $request->state ?? null;
+        $customer->country = $request->country ?? null;
+        $customer->zip_code = $request->zip_code ?? null;
         $customer->gst_number = $request->gst_number ?? null;
         $customer->place_of_supply = $request->place_of_supply ?? null;
         $customer->save();

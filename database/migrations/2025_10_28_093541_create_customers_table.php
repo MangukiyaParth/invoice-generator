@@ -14,13 +14,13 @@ return new class extends Migration
          if (!Schema::hasTable('customers')) {
             Schema::create('customers', function (Blueprint $table) {
                 $table->id();
-                $table->string('name');
-                $table->string('email');
-                $table->longText('address');
-                $table->string('city');
-                $table->string('state');
-                $table->string('country');
-                $table->string('zip_code');
+                $table->string('name')->nullable();
+                $table->string('email')->nullable();
+                $table->longText('address')->nullable();
+                $table->string('city')->nullable();
+                $table->string('state')->nullable();
+                $table->string('country')->nullable();
+                $table->string('zip_code')->nullable();
                 $table->string('place_of_supply')->nullable();
                 $table->string('gst_number')->nullable();
                 $table->integer('created_by')->default(0);

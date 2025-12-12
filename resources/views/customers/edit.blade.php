@@ -91,12 +91,7 @@ $(document).ready(function() {
         // Required fields validation
         const requiredFields = {
             'name': 'Name is required',
-            'email': 'Email is required',
-            'address': 'Address is required',
-            'city': 'City is required',
-            'state': 'State is required',
-            'country': 'Country is required',
-            'zip_code': 'Zip code is required'
+            'email': 'Email is required'
         };
         
         $.each(requiredFields, function(field, message) {

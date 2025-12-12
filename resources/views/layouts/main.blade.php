@@ -89,11 +89,11 @@
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </button>
                     </form>
-                    <a href="{{ env('MAIN_SITE_URL') }}/dashboard" 
+                    {{-- <a href="{{ env('MAIN_SITE_URL') }}/dashboard" 
                     class="btn btn-outline-primary" 
                     style="margin-left: 0.5rem;">
                         <i class="fas fa-arrow-left"></i> Back to Main Site
-                    </a>
+                    </a> --}}
                 </div>
             </div>
         </header>

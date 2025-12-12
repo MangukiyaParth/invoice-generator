@@ -26,6 +26,7 @@
                      <select class="form-select form-control" name="currency" id="currencySelect">
                             <option value="INR" {{ $company->currency == 'INR' ? 'selected' : '' }}>₹ Rupees (INR)</option>
                             <option value="USD" {{ $company->currency == 'USD' ? 'selected' : '' }}>$ Dollar (USD)</option>
+                            <option value="AUD" {{ $company->currency == 'AUD' ? 'selected' : '' }}>AU$ Australian Dollar (AUD)</option>
                     </select>
                 </div>
                 <div class="mb-3 col-md-6">
@@ -56,17 +57,21 @@
                     <label for="zip_code" class="form-label">Zip Code</label>
                     <input type="text" id="zip_code" name="zip_code" class="form-control" placeholder="Enter Zip Code" value="{{ $company->zip_code }}" >
                 </div>
-                 <div class="mb-3 col-md-6">
+                 <div class="mb-3 col-md-4">
                         <label for="gst_number" class="form-label">GSTIN Number</label>
                         <input type="text" id="gst_number" name="gst_number" class="form-control" placeholder="Enter GSTIN Number" value="{{ $company->gst_number }}" >
                 </div>
-                <div class="mb-3 col-md-6">
+                <div class="mb-3 col-md-4">
                         <label for="lut_number" class="form-label">LUT Number</label>
                         <input type="text" id="lut_number" name="lut_number" class="form-control" placeholder="Enter LUT Number" value="{{ $company->lut_number }}" >
                 </div>
-                 <div class="mb-3 col-md-6">
+                 <div class="mb-3 col-md-4">
                         <label for="euid_number" class="form-label">EUID Number</label>
                         <input type="text" id="euid_number" name="euid_number" class="form-control" placeholder="Enter EUID Number" value="{{ $company->euid_number }}" >
+                </div>
+                <div class="mb-3 col-md-6">
+                        <label for="bank_details" class="form-label">Bank Details</label>
+                        <textarea id="bank_details" name="bank_details" class="form-control" placeholder="Enter Bank Details" rows="3">{{ $company->bank_details }}</textarea>
                 </div>
                 <div class="mb-3 col-md-6">
                         <label for="notes" class="form-label">Notes</label>
@@ -121,12 +126,6 @@ $(document).ready(function() {
         const requiredFields = {
             'name': 'Name is required', 
             'email': 'Email is required',
-            'address': 'Address is required',
-            'city': 'City is required',
-            'state': 'State is required',
-            'country': 'Country is required',
-            'zip_code': 'Zip code is required',
-            'gst_number': 'GST number is required'
         };
         
         $.each(requiredFields, function(field, message) {

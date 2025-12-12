@@ -61,6 +61,7 @@
                                             <select class="form-select" name="currency" id="currencySelect" required>
                                                 <option value="INR">₹ Rupees (INR)</option>
                                                 <option value="USD">$ Dollar (USD)</option>
+                                                <option value="AUD">AU$ Australian Dollar (AUD)</option>
                                             </select>
                                         </div>
                                          <div class="col-md-6 mb-3">
@@ -275,7 +276,7 @@ input[readonly] {
 
             function calculateSummary() {
                 const currency = document.getElementById('currencySelect').value;
-                const symbol = currency === 'USD' ? '$' : '₹';
+                const symbol = currency === 'USD' ? '$' : currency === 'AUD' ? 'AU$' : '₹';
 
                 let subTotal = 0;
                 let totalTaxAmount = 0;
@@ -365,10 +366,10 @@ input[readonly] {
                     result += convertHundreds(rupees);
                 }
 
-                const currencyName = currency === 'USD' ? 'Dollar' : 'Rupee';
-                const subUnit = currency === 'USD' ? 'Cent' : 'Paise';
+                const currencyName = currency === 'USD' ? 'Dollar' : currency === 'AUD' ? 'Dollar' : 'Rupee';
+                const subUnit = currency === 'USD' ? 'Cent' : currency === 'AUD' ? 'Cent' : 'Paise';
 
-                result = (currency === 'USD' ? 'US ' : 'Indian ') + currencyName + ' ' + result.trim();
+                result = (currency === 'USD' ? 'US ' : currency === 'AUD' ? 'Australian ' : 'Indian ') + currencyName + ' ' + result.trim();
 
                 if (paise > 0) {
                     result += ' and ' + convertHundreds(paise).trim() + ' ' + subUnit;
@@ -380,7 +381,7 @@ input[readonly] {
             // Update currency symbol in table header
             document.getElementById('currencySelect').addEventListener('change', function() {
                 const currency = this.value;
-                const symbol = currency === 'USD' ? '$' : '₹';
+                const symbol = currency === 'USD' ? '$' : currency === 'AUD' ? 'AU$' : '₹';
                 document.getElementById('currencySymbol').textContent = symbol;
 
                 // Recalculate all rows
@@ -407,7 +408,7 @@ input[readonly] {
                             if (data.currency) {
                                 document.getElementById('currencySelect').value = data.currency;
                                 // Update currency symbol and recalculate
-                                const symbol = data.currency === 'USD' ? '$' : '₹';
+                                const symbol = data.currency === 'USD' ? '$' : data.currency === 'AUD' ? 'AU$' : '₹';
                                 document.getElementById('currencySymbol').textContent = symbol;
                                 calculateSummary();
                             }

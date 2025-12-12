@@ -26,6 +26,7 @@
                      <select class="form-select form-control" name="currency" id="currencySelect" >
                             <option value="INR">₹ Rupees (INR)</option>
                             <option value="USD">$ Dollar (USD)</option>
+                            <option value="AUD">AU$ Australian Dollar (AUD)</option>
                     </select>
                 </div>
                 <div class="mb-3 col-md-6">
@@ -56,20 +57,24 @@
                     <label for="zip_code" class="form-label">Zip Code</label>
                     <input type="text" id="zip_code" name="zip_code" class="form-control" placeholder="Enter Zip Code" >
                 </div>
-                 <div class="mb-3 col-md-6">
+                 <div class="mb-3 col-md-4">
                         <label for="gst_number" class="form-label">GSTIN Number</label>
                         <input type="text" id="gst_number" name="gst_number" class="form-control" placeholder="Enter GSTIN Number" >
                         @error('gst_number')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                 </div>
-                <div class="mb-3 col-md-6">
+                <div class="mb-3 col-md-4">
                         <label for="lut_number" class="form-label">LUT Number</label>
                         <input type="text" id="lut_number" name="lut_number" class="form-control" placeholder="Enter LUT Number">
                 </div>
-                 <div class="mb-3 col-md-6">
+                 <div class="mb-3 col-md-4">
                         <label for="euid_number" class="form-label">EUID Number</label>
                         <input type="text" id="euid_number" name="euid_number" class="form-control" placeholder="Enter EUID Number">
+                </div>
+                <div class="mb-3 col-md-6">
+                        <label for="bank_details" class="form-label">Bank Details</label>
+                        <textarea id="bank_details" name="bank_details" class="form-control" placeholder="Enter Bank Details" rows="3"></textarea>
                 </div>
                 <div class="mb-3 col-md-6">
                         <label for="notes" class="form-label">Notes</label>
@@ -112,48 +117,45 @@
     }
 </script>
 <script>
-$(document).ready(function() {
-    $('form').on('submit', function(e) {
+$(document).ready(function () {
+    $('form').on('submit', function (e) {
         let isValid = true;
-        // Clear previous errors
+        // Remove previous errors
         $('.error-message').remove();
         $('.is-invalid').removeClass('is-invalid');
-        
-        // Required fields validation
+
+        // Required fields
         const requiredFields = {
-            'logo': 'Logo is required',
-            'name': 'Name is required', 
-            'email': 'Email is required',
-            'address': 'Address is required',
-            'city': 'City is required',
-            'state': 'State is required',
-            'country': 'Country is required',
-            'zip_code': 'Zip code is required',
-            'gst_number': 'GST number is required'
+            'name': 'Name is required',
+            'email': 'Email is required'
         };
-        
-        $.each(requiredFields, function(field, message) {
+
+        $.each(requiredFields, function (field, message) {
             const input = $('[name="' + field + '"]');
-            const value = field === 'logo' ? input[0].files.length : input.val().trim();
-            
+            const value = input.val().trim();
+
             if (!value) {
                 input.addClass('is-invalid');
-                input.closest('.mb-3').append('<div class="error-message text-danger mt-1">' + message + '</div>');
+                input.closest('.mb-3').append(
+                    '<div class="error-message text-danger mt-1">' + message + '</div>'
+                );
                 isValid = false;
             }
         });
-        
-        // Email validation
+
+        // Email format validation
         const email = $('[name="email"]').val().trim();
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            $('[name="email"]').addClass('is-invalid');
-            $('[name="email"]').closest('.mb-3').append('<div class="error-message text-danger mt-1">Please enter a valid email</div>');
+            const emailInput = $('[name="email"]');
+            emailInput.addClass('is-invalid');
+            emailInput.closest('.mb-3').append(
+                '<div class="error-message text-danger mt-1">Please enter a valid email</div>'
+            );
             isValid = false;
         }
-        
+
         if (!isValid) {
             e.preventDefault();
-            return false;
         }
     });
 });

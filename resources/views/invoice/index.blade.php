@@ -4,10 +4,11 @@
 @section('content')
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0"></h5>
-            <a href="{{ route('invoice.create') }}" class="btn btn-success">
-            Add New 
-        </a>
+        <h5 class="mb-0"></h5>
+        <div>
+            <a href="{{ route('invoice.create') }}" class="btn btn-success">GST Invoice</a>
+            <a href="{{ route('invoice.non-gst') }}" class="btn btn-primary" style="margin-left: 3px;">Non-GST Invoice</a>
+        </div>
     </div>
 </div>
 

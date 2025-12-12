@@ -19,7 +19,7 @@ class CompanyController extends Controller
                 ->addColumn('logo', function ($company) {
                     $imagePath = $company->logo 
                         ? asset('storage/' . ltrim($company->logo, '/')) 
-                        : asset('assets/images/defaultApp.png');
+                        : asset('assets/images/default.jpg');
                     return '<img src="'.$imagePath.'" alt="Company Logo" class="dataTable-app-img rounded" width="40" height="40">';
                 })
                 ->addColumn('actions', function ($company) {
@@ -54,38 +54,35 @@ class CompanyController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
-            'address' => 'required',
-            'city' => 'required',
-            'country' => 'required',
-            'state' => 'required',
-            'zip_code' => 'required',
-            'gst_number' => 'required',
-            'currency' => 'required',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
        
-        $path = $request->file('logo')->store('uploads/images/company_logo', 'public');
+        $path = null;
+        if ($request->hasFile('logo')) {
+            $path = $request->file('logo')->store('uploads/images/company_logo', 'public');
+        }
+
         $company = new Company();
-        $company->name = $request->name;
-        $company->currency = $request->currency;
-        $company->email = $request->email;
-        $company->address = $request->address;
-        $company->city = $request->city;
-        $company->state = $request->state;
-        $company->country = $request->country;
-        $company->zip_code = $request->zip_code;
-        $company->gst_number = $request->gst_number;
+        $company->name = $request->name ?? null;
+        $company->currency = $request->currency ?? null;
+        $company->email = $request->email ?? null;
+        $company->address = $request->address ?? null; 
+        $company->city = $request->city ?? null;
+        $company->state = $request->state ?? null;
+        $company->country = $request->country ?? null;
+        $company->zip_code = $request->zip_code ?? null;
+        $company->gst_number = $request->gst_number ?? null;
         $company->lut_number = $request->lut_number ?? null;
         $company->euid_number = $request->euid_number ?? null;
-        $company->terms_conditions = $request->terms_conditions ?? '';
-        $company->notes = $request->notes ?? '';
+        $company->terms_conditions = $request->terms_conditions ?? null;
+        $company->notes = $request->notes ?? null;
+        $company->bank_details = $request->bank_details ?? null;
         $company->created_by = Auth::user()->id;
         $company->logo = $path;
-
         $company->save();
 
         return redirect()->route('company.index')->with('success', 'Company created successfully.');
@@ -106,19 +103,14 @@ class CompanyController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
-            'address' => 'required',
-            'city' => 'required',
-            'country' => 'required',
-            'state' => 'required',
-            'zip_code' => 'required',
-            'gst_number' => 'required',
-            'currency'     => 'required',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        
+
+        $path = null;
         if ($request->hasFile('logo')) {
             if ($company->logo && Storage::disk('public')->exists($company->logo)) {
                 Storage::disk('public')->delete($company->logo);
@@ -126,19 +118,21 @@ class CompanyController extends Controller
             $path = $request->file('logo')->store('uploads/images/company_logo', 'public');
             $company->logo = $path;
         }
-        $company->currency = $request->currency;
-        $company->name = $request->name;
-        $company->email = $request->email;
-        $company->address = $request->address;
-        $company->city = $request->city;
-        $company->state = $request->state;
-        $company->country = $request->country;
-        $company->zip_code = $request->zip_code;
-        $company->gst_number = $request->gst_number;
+        $company->name = $request->name ?? null;
+        $company->currency = $request->currency ?? null;
+        $company->email = $request->email ?? null;
+        $company->address = $request->address ?? null; 
+        $company->city = $request->city ?? null;
+        $company->state = $request->state ?? null;
+        $company->country = $request->country ?? null;
+        $company->zip_code = $request->zip_code ?? null;
+        $company->gst_number = $request->gst_number ?? null;
         $company->lut_number = $request->lut_number ?? null;
         $company->euid_number = $request->euid_number ?? null;
-        $company->terms_conditions = $request->terms_conditions ?? '';
-        $company->notes = $request->notes ?? '';
+        $company->terms_conditions = $request->terms_conditions ?? null;
+        $company->notes = $request->notes ?? null;
+        $company->bank_details = $request->bank_details ?? null;
+        $company->created_by = Auth::user()->id;
         $company->save();
         return redirect()->route('company.index')->with('success', 'Company updated successfully.');
     }
