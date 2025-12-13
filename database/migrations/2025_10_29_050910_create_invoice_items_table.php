@@ -15,12 +15,14 @@ return new class extends Migration
             Schema::create('invoice_items', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('invoice_id')->constrained('invoices')->onDelete('cascade');
-                $table->string('name')->nullable();
                 $table->string('description')->nullable();
                 $table->integer('hsn')->nullable();
                 $table->decimal('quantity',15, 2)->default(0.00);
                 $table->decimal('rate', 15, 2)->default(0.00);
-                $table->integer('igst')->nullable();
+                $table->string('tax_type')->default('none');
+                $table->decimal('igst', 15, 2)->default(0.00);
+                $table->decimal('sgst', 15, 2)->default(0.00);
+                $table->decimal('cgst', 15, 2)->default(0.00);
                 $table->decimal('total_amount', 15, 2)->default(0.00);
                 $table->timestamps();
             });

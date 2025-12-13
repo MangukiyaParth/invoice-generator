@@ -61,7 +61,7 @@
             </div>
              <div class="nav-item">
                 <a href="{{ route('invoice.index') }}" class="nav-link {{ request()->routeIs('invoice.*') ? 'active' : '' }}">
-                    <i class="fas fa-users nav-icon"></i>
+                    <i class="fas fa-file nav-icon"></i>
                     Invoice
                 </a>
             </div>

@@ -367,12 +367,17 @@
                         @endif
                         <div class="company-info">
                             <h3>{{ strtoupper($invoice->company_name->name ?? '') }}</h3>
-                            @if(!empty( $invoice->company_name->address ))<p><strong>Address:</strong> {{ $invoice->company_name->address ?? '' }}</p>@endif
+                            @php
+                                $addressParts = array_filter([
+                                    $invoice->company_name->address ?? '',
+                                    $invoice->company_name->city ?? '',
+                                    $invoice->company_name->state ?? '',
+                                    $invoice->company_name->country ?? '',
+                                    $invoice->company_name->zip_code ?? ''
+                                ]);
+                            @endphp
+                            @if(!empty($addressParts))<p><strong>Address:</strong> {{ implode(' ', $addressParts) }}</p>@endif
                             @if(!empty( $invoice->company_name->email ))<p><strong>Email:</strong> {{ $invoice->company_name->email ?? '' }}</p>@endif
-                            @if(!empty( $invoice->company_name->city ))<p><strong>City:</strong> {{ $invoice->company_name->city ?? '' }}</p>@endif
-                            @if(!empty( $invoice->company_name->state ))<p><strong>State:</strong> {{ $invoice->company_name->state ?? '' }}</p>@endif
-                            @if(!empty( $invoice->company_name->country ))<p><strong>Country:</strong> {{ $invoice->company_name->country ?? '' }}</p>@endif
-                            @if(!empty( $invoice->company_name->zip_code ))<p><strong>Zip Code:</strong> {{ $invoice->company_name->zip_code ?? '' }}</p>@endif
                             @if(!empty( $invoice->company_name->gst_number ))<p><strong>GST Number:</strong> {{ $invoice->company_name->gst_number ?? '' }}</p>@endif
                         </div>
                     </td>
@@ -395,14 +400,19 @@
             <tr>
                 <td class="bill-to-cell">
                     <div class="bill-to">
-                        <h3>Bill To</h3>
-                        <p><strong>{{ strtoupper($invoice->customer_name->name ?? '') }}</strong></p>
-                        @if(!empty( $invoice->customer_name->address ))<p><strong>Address:</strong> {{ $invoice->customer_name->address ?? '' }}</p>@endif
+                      <h4>Bill To</h4>
+                        <h3>{{ strtoupper($invoice->customer_name->name ?? '') }}</h3>
+                        @php
+                            $customerAddressParts = array_filter([
+                                $invoice->customer_name->address ?? '',
+                                $invoice->customer_name->city ?? '',
+                                $invoice->customer_name->state ?? '',
+                                $invoice->customer_name->country ?? '',
+                                $invoice->customer_name->zip_code ?? ''
+                            ]);
+                        @endphp
+                        @if(!empty($customerAddressParts))<p><strong>Address:</strong> {{ implode(' ', $customerAddressParts) }}</p>@endif
                         @if(!empty( $invoice->customer_name->email ))<p><strong>Email:</strong> {{ $invoice->customer_name->email ?? '' }}</p>@endif
-                        @if(!empty( $invoice->customer_name->city ))<p><strong>City:</strong> {{ $invoice->customer_name->city ?? '' }}</p>@endif
-                        @if(!empty( $invoice->customer_name->state ))<p><strong>State:</strong> {{ $invoice->customer_name->state ?? '' }}</p>@endif
-                        @if(!empty( $invoice->customer_name->country ))<p><strong>Country:</strong> {{ $invoice->customer_name->country ?? '' }}</p>@endif
-                        @if(!empty( $invoice->customer_name->zip_code ))<p><strong>Zip Code:</strong> {{ $invoice->customer_name->zip_code ?? '' }}</p>@endif
                         @if(!empty( $invoice->customer_name->gst_number ))<p><strong>GST Number:</strong> {{ $invoice->customer_name->gst_number ?? '' }}</p>@endif
                         @if(!empty( $invoice->customer_name->place_of_supply ))<p><strong>Place of Supply:</strong> {{ $invoice->customer_name->place_of_supply ?? '' }}</p>@endif
                     </div>
@@ -420,9 +430,8 @@
         <table class="items-table"> 
             <thead>
                 <tr>
-                    <th style="width:5%; text-align:center;">#</th>
-                    <th style="width:15%; text-align:center;">Date</th>
-                    <th style="width:45%; text-align:left;">Item and Description</th>
+                    <th style="width:5%; text-align:center;">No</th>
+                    <th style="width:35%; text-align:center;">Description</th>
                     <th style="width:35%; text-align:center;">Amount</th>
                 </tr>
             </thead>
@@ -430,13 +439,7 @@
                 @foreach($invoice->items ?? [] as $key => $item)
                     <tr>
                         <td class="text-center">{{ $key + 1 }}</td>
-                        <td class="text-center">{{ $invoice->invoice_date}}</td>
-                        <td>
-                            <strong>{{ $item->name }}</strong>
-                            @if($item->description)
-                                <br><small style="color: #666;">{{ $item->description }}</small>
-                            @endif
-                        </td>
+                        <td class="text-center">{{ $item->description }}</td>
                         <td class="text-center"><strong>{{ $currencySymbol }}{{ number_format((float)$item->total_amount, 2) }}</strong></td>
                     </tr>
                 @endforeach
@@ -447,12 +450,12 @@
 
         <!-- BANK DETAILS AND TOTAL SECTION -->
         <div style="width: 100%; margin-top: 15px; display: table;">
-            <!-- Bank Details -->
+             <!-- Bank Details -->
             <div style="width: 48%; float: left; padding-right: 2%;">
                 @if($invoice->company_name->bank_details)
-                <div style="border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9;">
-                    <h4 style="margin: 0 0 8px 0; font-size: 12px; color: #2c3e50;">Bank Details</h4>
-                    <div style="font-size: 11px; line-height: 1.4;">{!! str_replace('&lt;/br&gt;', '<br>', $invoice->company_name->bank_details) !!}</div>
+                <div style="border: 1px solid #ddd; padding: 15px; background-color: #f9f9f9; min-height: 120px;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #2c3e50;">Bank Details</h4>
+                    <div style="font-size: 12px; line-height: 1.5;">{!! nl2br(e($invoice->company_name->bank_details)) !!}</div>
                 </div>
                 @endif
             </div>
@@ -460,10 +463,10 @@
             <!-- Total Section -->
             <div class="totals-section" style="width: 50%; float: right;">
                 <table class="totals-table">
-                    <tr>
+                    {{-- <tr>
                         <td class="label">Sub Total:</td>
                         <td class="amount">{{ $currencySymbol }}{{ number_format((float)$subTotal, 2) }}</td>
-                    </tr>
+                    </tr> --}}
                     <tr class="total-row">
                         <td class="label">Total Amount:</td>
                         <td class="amount">{{ $currencySymbol }}{{ number_format((float)$grandTotal, 2) }}</td>

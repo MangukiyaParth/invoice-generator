@@ -45,13 +45,13 @@
 
 
                     <div class="mb-3 col-md-6">
-                        <label for="gst_number" class="form-label">GSTIN Number</label>
-                        <input type="text" id="gst_number" name="gst_number" class="form-control">
+                        <label for="gst_number" class="form-label">GST Number</label>
+                        <input type="text" id="gst_number" name="gst_number" class="form-control" placeholder="Enter GST Number">
 
                     </div>
                     <div class="mb-3 col-md-6">
                         <label for="place_of_supply" class="form-label">Place of supply</label>
-                        <input type="text" id="place_of_supply" name="place_of_supply" class="form-control">
+                        <input type="text" id="place_of_supply" name="place_of_supply" class="form-control" placeholder="Enter Place of supply">
 
                     </div>
 

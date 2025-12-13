@@ -56,14 +56,14 @@
                     </div>
 
                     <div class="mb-3 col-md-6">
-                        <label for="gst_number" class="form-label">GSTIN Number</label>
-                        <input type="text" id="gst_number" name="gst_number" class="form-control"
+                        <label for="gst_number" class="form-label">GST Number</label>
+                        <input type="text" id="gst_number" name="gst_number" class="form-control" placeholder="Enter GST Number"
                                value="{{ old('gst_number', $customer->gst_number) }}" >
                     </div>
 
                     <div class="mb-3 col-md-6">
                         <label for="place_of_supply" class="form-label">Place of Supply</label>
-                        <input type="text" id="place_of_supply" name="place_of_supply" class="form-control"
+                        <input type="text" id="place_of_supply" name="place_of_supply" class="form-control" placeholder="Enter Place of supply"
                                value="{{ old('place_of_supply', $customer->place_of_supply) }}" >
                     </div>
 

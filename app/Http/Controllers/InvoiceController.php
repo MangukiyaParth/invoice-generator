@@ -138,12 +138,26 @@ class InvoiceController extends Controller
         foreach ($items as $item) {
             $invoice_item               = new InvoiceItem();
             $invoice_item->invoice_id   = $invoice->id;
-            $invoice_item->name         = $item['name'];
             $invoice_item->description  = $item['description'];
             $invoice_item->hsn          = $item['hsn'];
             $invoice_item->quantity     = $item['quantity'] ?? 0;
             $invoice_item->rate         = $item['rate'];
-            $invoice_item->igst         = $item['igst'];
+            $invoice_item->tax_type     = $item['tax_type'] ?? 'none';
+            // Calculate tax amounts based on tax type
+            $subtotal = $item['quantity'] * $item['rate'];
+            if ($item['tax_type'] === 'igst') {
+                $invoice_item->igst = ($subtotal * 18) / 100;
+                $invoice_item->sgst = 0;
+                $invoice_item->cgst = 0;
+            } elseif ($item['tax_type'] === 'sgst_cgst') {
+                $invoice_item->igst = 0;
+                $invoice_item->sgst = ($subtotal * 9) / 100;
+                $invoice_item->cgst = ($subtotal * 9) / 100;
+            } else {
+                $invoice_item->igst = 0;
+                $invoice_item->sgst = 0;
+                $invoice_item->cgst = 0;
+            }
             $invoice_item->total_amount = $item['total_amount'];
             $invoice_item->save();
         }
@@ -255,12 +269,26 @@ class InvoiceController extends Controller
         foreach ($request->items as $item) {
             $invoice_item               = new InvoiceItem();
             $invoice_item->invoice_id   = $invoice->id;
-            $invoice_item->name         = $item['name'];
             $invoice_item->description  = $item['description'];
             $invoice_item->hsn          = $item['hsn'];
             $invoice_item->quantity     = isset($item['quantity']) ? $item['quantity'] : 0;
             $invoice_item->rate         = $item['rate'];
-            $invoice_item->igst         = $item['igst'];
+            $invoice_item->tax_type     = $item['tax_type'] ?? 'none';
+            // Calculate tax amounts based on tax type
+            $subtotal = $item['quantity'] * $item['rate'];
+            if ($item['tax_type'] === 'igst') {
+                $invoice_item->igst = ($subtotal * 18) / 100;
+                $invoice_item->sgst = 0;
+                $invoice_item->cgst = 0;
+            } elseif ($item['tax_type'] === 'sgst_cgst') {
+                $invoice_item->igst = 0;
+                $invoice_item->sgst = ($subtotal * 9) / 100;
+                $invoice_item->cgst = ($subtotal * 9) / 100;
+            } else {
+                $invoice_item->igst = 0;
+                $invoice_item->sgst = 0;
+                $invoice_item->cgst = 0;
+            }
             $invoice_item->total_amount = $item['total_amount'];
             $invoice_item->save();
         }
@@ -360,7 +388,6 @@ class InvoiceController extends Controller
         foreach ($items as $item) {
             $invoice_item               = new InvoiceItem();
             $invoice_item->invoice_id   = $invoice->id;
-            $invoice_item->name         = $item['name'];
             $invoice_item->description  = $item['description'];
             $invoice_item->total_amount = $item['total_amount'];
             $invoice_item->save();
@@ -470,7 +497,6 @@ class InvoiceController extends Controller
             foreach ($request->items as $item) {
                 $invoice_item               = new InvoiceItem();
                 $invoice_item->invoice_id   = $invoice->id;
-                $invoice_item->name         = $item['name'];
                 $invoice_item->description  = $item['description'];
                 $invoice_item->total_amount = $item['total_amount'];
                 $invoice_item->save();

@@ -8,13 +8,15 @@ class InvoiceItem extends Model
 {
     protected $fillable = [
         'invoice_id',
-        'name',
         'description',
         'quantity',
         'hsn',
         'rate',
         'total_amount',
+        'tax_type',
         'igst',
+        'sgst',
+        'cgst',
     ];
 
     public function users()

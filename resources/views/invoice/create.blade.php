@@ -83,20 +83,17 @@
                                         <table class="table table-bordered" id="itemsTable">
                                             <thead>
                                                 <tr>
-                                                    <th>Name</th>
                                                     <th>Description</th>
                                                     <th>HSN/SAC</th>
                                                     <th>Quantity</th>
                                                     <th>Rate</th>
-                                                    <th>IGST (%)</th>
+                                                    <th>Tax</th>
                                                     <th>Total Amount <span id="currencySymbol">₹</span></th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="itemsBody">
                                                 <tr class="item-row">
-                                                    <td><input type="text" class="form-control" name="items[0][name]"
-                                                            required></td>
                                                     <td><input type="text" class="form-control"
                                                             name="items[0][description]" required></td>
                                                     <td><input type="number" class="form-control hsn" name="items[0][hsn]"
@@ -107,12 +104,10 @@
                                                             name="items[0][rate]" step="0.01" min="0" required>
                                                     </td>
                                                     <td>
-                                                        <select class="form-select igst" name="items[0][igst]">
-                                                            <option value="0">0</option>
-                                                            <option value="5">5</option>
-                                                            <option value="12">12</option>
-                                                            <option value="18">18</option>
-                                                            <option value="28">28</option>
+                                                        <select class="form-select tax-type" name="items[0][tax_type]">
+                                                            <option value="none">No Tax</option>
+                                                            <option value="igst">IGST (18%)</option>
+                                                            <option value="sgst_cgst">SGST+CGST (9%+9%)</option>
                                                         </select>
                                                     </td>
                                                     <td><input type="text" class="form-control total-amount"
@@ -149,7 +144,22 @@
                                                                 id="subTotal">0.00</span></td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="text-end border-0"><strong>IGST</strong></td>
+                                                        <td class="text-end border-0"><strong>IGST (18%)</strong></td>
+                                                        <td class="text-end border-0"><span id="igstSymbol">₹</span><span
+                                                                id="igstAmount">0.00</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-end border-0"><strong>SGST (9%)</strong></td>
+                                                        <td class="text-end border-0"><span id="sgstSymbol">₹</span><span
+                                                                id="sgstAmount">0.00</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-end border-0"><strong>CGST (9%)</strong></td>
+                                                        <td class="text-end border-0"><span id="cgstSymbol">₹</span><span
+                                                                id="cgstAmount">0.00</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-end border-0"><strong>Total Tax</strong></td>
                                                         <td class="text-end border-0"><span id="taxSymbol">₹</span><span
                                                                 id="totalTax">0.00</span></td>
                                                     </tr>
@@ -211,18 +221,15 @@ input[readonly] {
                 const tbody = document.getElementById('itemsBody');
                 const newRow = `
             <tr class="item-row">
-                 <td><input type="text" class="form-control" name="items[${itemIndex}][name]" required></td>
                 <td><input type="text" class="form-control" name="items[${itemIndex}][description]" required></td>
                 <td><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]" min="1" required></td>
                 <td><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" required></td>
                 <td><input type="number" class="form-control rate" name="items[${itemIndex}][rate]" step="0.01" min="0" required></td>
                 <td>
-                    <select class="form-select igst" name="items[${itemIndex}][igst]">
-                        <option value="0">0</option>
-                        <option value="5">5</option>
-                        <option value="12">12</option>
-                        <option value="18">18</option>
-                        <option value="28">28</option>
+                    <select class="form-select tax-type" name="items[${itemIndex}][tax_type]">
+                        <option value="none">No Tax</option>
+                        <option value="igst">IGST (18%)</option>
+                        <option value="sgst_cgst">SGST+CGST (9%+9%)</option>
                     </select>
                 </td>
                 <td><input type="text" class="form-control total-amount" name="items[${itemIndex}][total_amount]" readonly></td>
@@ -244,8 +251,7 @@ input[readonly] {
 
             // Calculate total amount
             document.addEventListener('input', function(e) {
-                if (e.target.classList.contains('quantity') || e.target.classList.contains('rate') || e
-                    .target.classList.contains('igst')) {
+                if (e.target.classList.contains('quantity') || e.target.classList.contains('rate')) {
                     calculateRowTotal(e.target.closest('tr'));
                 }
                 if (e.target.id === 'paymentMade') {
@@ -254,7 +260,7 @@ input[readonly] {
             });
 
             document.addEventListener('change', function(e) {
-                if (e.target.classList.contains('igst')) {
+                if (e.target.classList.contains('tax-type')) {
                     calculateRowTotal(e.target.closest('tr'));
                 }
             });
@@ -262,11 +268,17 @@ input[readonly] {
             function calculateRowTotal(row) {
                 const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
                 const rate = parseFloat(row.querySelector('.rate').value) || 0;
-                const igst = parseFloat(row.querySelector('.igst').value) || 0;
-                const currency = document.getElementById('currencySelect').value;
+                const taxType = row.querySelector('.tax-type').value;
 
                 const subtotal = quantity * rate;
-                const tax = (subtotal * igst) / 100;
+                let taxRate = 0;
+                if (taxType === 'igst') {
+                    taxRate = 18;
+                } else if (taxType === 'sgst_cgst') {
+                    taxRate = 18; // 9% SGST + 9% CGST = 18% total
+                }
+                
+                const tax = (subtotal * taxRate) / 100;
                 const total = subtotal + tax;
 
                 row.querySelector('.total-amount').value = total.toFixed(2);
@@ -279,19 +291,27 @@ input[readonly] {
                 const symbol = currency === 'USD' ? '$' : currency === 'AUD' ? 'AU$' : '₹';
 
                 let subTotal = 0;
-                let totalTaxAmount = 0;
+                let totalIgst = 0;
+                let totalSgst = 0;
+                let totalCgst = 0;
 
                 document.querySelectorAll('.item-row').forEach(row => {
                     const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
                     const rate = parseFloat(row.querySelector('.rate').value) || 0;
-                    const igst = parseFloat(row.querySelector('.igst').value) || 0;
+                    const taxType = row.querySelector('.tax-type').value;
 
                     const itemSubtotal = quantity * rate;
-                    const itemTax = (itemSubtotal * igst) / 100;
+                    if (taxType === 'igst') {
+                        totalIgst += (itemSubtotal * 18) / 100;
+                    } else if (taxType === 'sgst_cgst') {
+                        totalSgst += (itemSubtotal * 9) / 100;
+                        totalCgst += (itemSubtotal * 9) / 100;
+                    }
 
                     subTotal += itemSubtotal;
-                    totalTaxAmount += itemTax;
                 });
+
+                const totalTaxAmount = totalIgst + totalSgst + totalCgst;
 
 
                 const grandTotal = subTotal + totalTaxAmount;
@@ -300,13 +320,25 @@ input[readonly] {
 
                 // Update summary display
                 document.getElementById('subTotal').textContent = subTotal.toFixed(2);
+                document.getElementById('igstAmount').textContent = totalIgst.toFixed(2);
+                document.getElementById('sgstAmount').textContent = totalSgst.toFixed(2);
+                document.getElementById('cgstAmount').textContent = totalCgst.toFixed(2);
                 document.getElementById('totalTax').textContent = totalTaxAmount.toFixed(2);
                 document.getElementById('grandTotal').textContent = grandTotal.toFixed(2);
                 document.getElementById('paymentAmount').textContent = paymentMade.toFixed(2);
                 document.getElementById('balanceDue').textContent = balanceDue.toFixed(2);
 
+                // Show/hide tax rows based on amounts
+                document.getElementById('igstAmount').closest('tr').style.display = totalIgst > 0 ? '' : 'none';
+                document.getElementById('sgstAmount').closest('tr').style.display = totalSgst > 0 ? '' : 'none';
+                document.getElementById('cgstAmount').closest('tr').style.display = totalCgst > 0 ? '' : 'none';
+                document.getElementById('totalTax').closest('tr').style.display = totalTaxAmount > 0 ? '' : 'none';
+
                 // Update currency symbols
                 document.getElementById('summarySymbol').textContent = symbol;
+                document.getElementById('igstSymbol').textContent = symbol;
+                document.getElementById('sgstSymbol').textContent = symbol;
+                document.getElementById('cgstSymbol').textContent = symbol;
                 document.getElementById('taxSymbol').textContent = symbol;
                 document.getElementById('totalSymbol').textContent = symbol;
                 document.getElementById('paymentSymbol').textContent = symbol;
@@ -441,22 +473,6 @@ input[readonly] {
                         isValid = false;
                     }
                 });
-                
-                let hasValidItem = false;
-                $('.item-row').each(function() {
-                    const name = $(this).find('[name*="[name]"]').val();
-                    const quantity = $(this).find('[name*="[quantity]"]').val();
-                    const rate = $(this).find('[name*="[rate]"]').val();
-                    
-                    if (name && quantity && rate) {
-                        hasValidItem = true;
-                    }
-                });
-                
-                if (!hasValidItem) {
-                    $('#itemsTable').after('<div class="error-message text-danger mt-1">At least one complete item is required</div>');
-                    isValid = false;
-                }
                 
                 if (!isValid) {
                     e.preventDefault();

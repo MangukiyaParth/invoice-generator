@@ -53,7 +53,11 @@
                                 <td><span class="badge {{ $isPaid ? 'badge-success' : 'badge-warning' }}">{{ $isPaid ? 'Paid' : 'Pending' }}</span></td>
                                 <td>{{ $invoice->invoice_date }}</td>
                                 <td>
+                                    @if($invoice->type == 1)
                                     <a href="{{ route('invoice.edit', $invoice->id) }}" class="btn btn-primary btn-sm">View</a>
+                                    @else
+                                    <a href="{{ route('non.gst.invoice.edit', $invoice->id) }}" class="btn btn-primary btn-sm">View</a>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
