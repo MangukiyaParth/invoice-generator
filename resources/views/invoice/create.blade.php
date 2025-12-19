@@ -96,10 +96,9 @@
                                                 <tr class="item-row">
                                                     <td><input type="text" class="form-control"
                                                             name="items[0][description]" required></td>
-                                                    <td><input type="number" class="form-control hsn" name="items[0][hsn]"
-                                                            min="1" required></td>
+                                                    <td><input type="number" class="form-control hsn" name="items[0][hsn]"></td>
                                                     <td><input type="number" class="form-control quantity"
-                                                            name="items[0][quantity]" step="0.01" min="1" required></td>
+                                                            name="items[0][quantity]" step="0.01" min="1" value="1"></td>
                                                     <td><input type="number" class="form-control rate"
                                                             name="items[0][rate]" step="0.01" min="0" required>
                                                     </td>
@@ -222,8 +221,8 @@ input[readonly] {
                 const newRow = `
             <tr class="item-row">
                 <td><input type="text" class="form-control" name="items[${itemIndex}][description]" required></td>
-                <td><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]" min="1" required></td>
-                <td><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" required></td>
+                <td><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]"></td>
+                <td><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" value="1"></td>
                 <td><input type="number" class="form-control rate" name="items[${itemIndex}][rate]" step="0.01" min="0" required></td>
                 <td>
                     <select class="form-select tax-type" name="items[${itemIndex}][tax_type]">

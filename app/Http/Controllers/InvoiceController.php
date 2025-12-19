@@ -64,27 +64,19 @@ class InvoiceController extends Controller
         return view('invoice.create', compact('companies', 'customers', 'generatedInvoiceNumber'));
     }
 
+   
+
     private function generateInvoiceNumber()
     {
-        $now = \Carbon\Carbon::now();
-        $yearStart = $now->month >= 4 ? $now->year : $now->year - 1;
-        $yearEnd = $yearStart + 1;
-        $yearRange = $yearStart . '-' . substr($yearEnd, -2);
-        $month = $now->format('M');
+        $lastInvoice = Invoice::orderBy('invoice_number', 'desc')->first();
 
-        $lastInvoice = \App\Models\Invoice::whereYear('created_at', $now->year)
-            ->whereMonth('created_at', $now->month)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $nextNumber = 1;
-        if ($lastInvoice) {
-            $parts = explode('/', $lastInvoice->invoice_number);
-            $lastNumber = (int) end($parts);
-            $nextNumber = $lastNumber + 1;
+        if ($lastInvoice && preg_match('/PI(\d+)/', $lastInvoice->invoice_number, $matches)) {
+            $nextNumber = (int) $matches[1] + 1;
+        } else {
+            $nextNumber = 1;
         }
 
-        return "#{$yearRange}/{$month}/{$nextNumber}";
+        return 'PI' . $nextNumber;
     }
     public function store(Request $request)
     {
@@ -104,7 +96,7 @@ class InvoiceController extends Controller
         $now = \Carbon\Carbon::now();
 
         // Use provided invoice number or generate new one
-        $invoiceNumber = $request->invoice_number ?: $this->generateInvoiceNumber();
+        // $invoiceNumber = $request->invoice_number ?: $this->generateInvoiceNumber();
 
         // Financial Year calculation
         $yearStart = $now->month >= 4 ? $now->year : $now->year - 1;
@@ -117,6 +109,8 @@ class InvoiceController extends Controller
             ->max('max_number');
 
         $nextMaxNumber = $maxNumber ? $maxNumber + 1 : 1;
+
+        $invoiceNumber = $this->generateInvoiceNumber();
 
       
         $invoice = new Invoice();
@@ -179,6 +173,7 @@ class InvoiceController extends Controller
 
     public function update(Request $request, $id)
     {
+        
         $validator = Validator::make($request->all(), [
             'customer'     => 'required',
             'company'      => 'required',
@@ -193,73 +188,16 @@ class InvoiceController extends Controller
         }
 
         $invoice = Invoice::findOrFail($id);
-        $now = \Carbon\Carbon::now();
-
-        
-        $yearStart = $now->month >= 4 ? $now->year : $now->year - 1;
-        $yearEnd   = $yearStart + 1;
-        $yearRange = $yearStart . '-' . substr($yearEnd, -2);
-        $month     = $now->format('M');
-
-        $shouldRegenerate = false;
-
-        if (empty($invoice->invoice_number)) {
-            $shouldRegenerate = true;
-        } else {
-            $parts = explode('/', $invoice->invoice_number);
-            if (count($parts) >= 3) {
-                $existingMonth      = $parts[1];
-                $existingYearRange  = ltrim($parts[0], '#');
-                if ($existingMonth !== $month || $existingYearRange !== $yearRange) {
-                    $shouldRegenerate = true;
-                }
-            } else {
-                $shouldRegenerate = true;
-            }
-        }
-
-        
-        if ($shouldRegenerate) {
-            $lastInvoice = \App\Models\Invoice::whereYear('created_at', $now->year)
-                ->whereMonth('created_at', $now->month)
-                ->orderBy('id', 'desc')
-                ->first();
-
-            $nextNumber = 1;
-            if ($lastInvoice) {
-                $parts = explode('/', $lastInvoice->invoice_number);
-                $lastNumber = (int) end($parts);
-                $nextNumber = $lastNumber + 1;
-            }
-
-            $invoice->invoice_number = "#{$yearRange}/{$month}/{$nextNumber}";
-        }
-
+    
        
-        $financialYearStart = \Carbon\Carbon::create($yearStart, 4, 1);
-        $financialYearEnd   = \Carbon\Carbon::create($yearEnd, 3, 31, 23, 59, 59);
-
-        $maxNumber = \App\Models\Invoice::whereBetween('created_at', [$financialYearStart, $financialYearEnd])
-            ->max('max_number');
-
-        if (empty($invoice->max_number)) {
-            $invoice->max_number = $maxNumber ? $maxNumber + 1 : 1;
-        } else {
-            $invoiceCreatedYear = $invoice->created_at->year;
-            $invoiceFYStart = $invoiceCreatedYear >= 4 ? $invoiceCreatedYear : $invoiceCreatedYear - 1;
-            if ($invoiceFYStart !== $yearStart) {
-                $invoice->max_number = $maxNumber ? $maxNumber + 1 : 1;
-            }
-        }
-
-       
-        $invoice->customer     = $request->customer;
-        $invoice->company      = $request->company;
-        $invoice->invoice_date = $request->invoice_date;
-        $invoice->due_date     = $request->due_date;
-        $invoice->terms        = $request->terms ?? '';
-        $invoice->currency     = $request->currency ?? '';
-        $invoice->paid_amount  = $request->payment_made ?? '0';
+        $invoice->customer      = $request->customer;
+        $invoice->company       = $request->company;
+        $invoice->invoice_date  = $request->invoice_date;
+        $invoice->invoice_number = $request->invoice_number;
+        $invoice->due_date       = $request->due_date;
+        $invoice->terms         = $request->terms ?? '';
+        $invoice->currency      = $request->currency ?? '';
+        $invoice->paid_amount   = $request->payment_made ?? '0';
         $invoice->type           = '1';
         $invoice->save();
 
@@ -355,7 +293,7 @@ class InvoiceController extends Controller
         $now = \Carbon\Carbon::now();
 
         // Use provided invoice number or generate new one
-        $invoiceNumber = $request->invoice_number ?: $this->generateInvoiceNumber();
+        $invoiceNumber = $this->generateInvoiceNumber();
 
         // Financial Year calculation
         $yearStart = $now->month >= 4 ? $now->year : $now->year - 1;
@@ -422,69 +360,13 @@ class InvoiceController extends Controller
             }
 
             $invoice = Invoice::findOrFail($id);
-            $now = \Carbon\Carbon::now();
-
-            
-            $yearStart = $now->month >= 4 ? $now->year : $now->year - 1;
-            $yearEnd   = $yearStart + 1;
-            $yearRange = $yearStart . '-' . substr($yearEnd, -2);
-            $month     = $now->format('M');
-
-            $shouldRegenerate = false;
-
-            if (empty($invoice->invoice_number)) {
-                $shouldRegenerate = true;
-            } else {
-                $parts = explode('/', $invoice->invoice_number);
-                if (count($parts) >= 3) {
-                    $existingMonth      = $parts[1];
-                    $existingYearRange  = ltrim($parts[0], '#');
-                    if ($existingMonth !== $month || $existingYearRange !== $yearRange) {
-                        $shouldRegenerate = true;
-                    }
-                } else {
-                    $shouldRegenerate = true;
-                }
-            }
-
-            
-            if ($shouldRegenerate) {
-                $lastInvoice = \App\Models\Invoice::whereYear('created_at', $now->year)
-                    ->whereMonth('created_at', $now->month)
-                    ->orderBy('id', 'desc')
-                    ->first();
-
-                $nextNumber = 1;
-                if ($lastInvoice) {
-                    $parts = explode('/', $lastInvoice->invoice_number);
-                    $lastNumber = (int) end($parts);
-                    $nextNumber = $lastNumber + 1;
-                }
-
-                $invoice->invoice_number = "#{$yearRange}/{$month}/{$nextNumber}";
-            }
-
-        
-            $financialYearStart = \Carbon\Carbon::create($yearStart, 4, 1);
-            $financialYearEnd   = \Carbon\Carbon::create($yearEnd, 3, 31, 23, 59, 59);
-
-            $maxNumber = \App\Models\Invoice::whereBetween('created_at', [$financialYearStart, $financialYearEnd])
-                ->max('max_number');
-
-            if (empty($invoice->max_number)) {
-                $invoice->max_number = $maxNumber ? $maxNumber + 1 : 1;
-            } else {
-                $invoiceCreatedYear = $invoice->created_at->year;
-                $invoiceFYStart = $invoiceCreatedYear >= 4 ? $invoiceCreatedYear : $invoiceCreatedYear - 1;
-                if ($invoiceFYStart !== $yearStart) {
-                    $invoice->max_number = $maxNumber ? $maxNumber + 1 : 1;
-                }
-            }
+          
 
         
             $invoice->customer     = $request->customer;
             $invoice->company      = $request->company;
             $invoice->invoice_date = $request->invoice_date;
+            $invoice->invoice_number = $request->invoice_number;
             $invoice->due_date     = $request->due_date;
             $invoice->currency     = $request->currency ?? '';
             $invoice->paid_amount  = $request->payment_made ?? '0';
@@ -515,6 +397,7 @@ class InvoiceController extends Controller
 
        
         $safeInvoiceNumber = str_replace(['#', '/', '\\'], ['-', '-', '-'], $invoice->invoice_number);
+        
 
         $fileName = 'Invoice' . $safeInvoiceNumber . '.pdf';
         return $pdf->download($fileName);

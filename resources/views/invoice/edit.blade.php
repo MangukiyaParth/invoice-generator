@@ -76,7 +76,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Invoice Number</label>
-                                        <input type="text" class="form-control" name="invoice_number" value="{{ $invoice->invoice_number }}" readonly>
+                                        <input type="text" class="form-control" name="invoice_number" value="{{ $invoice->invoice_number }}">
                                     </div>
                                 </div>
                             </div>
@@ -106,8 +106,8 @@
                                             @foreach($invoice->items as $index => $item)
                                             <tr class="item-row">
                                                 <td><input type="text" class="form-control" name="items[{{ $index }}][description]" value="{{ $item->description }}" required></td>
-                                                <td><input type="number" class="form-control hsn" name="items[{{ $index }}][hsn]" value="{{ $item->hsn }}" min="1" required></td>
-                                                <td><input type="number" class="form-control quantity" name="items[{{ $index }}][quantity]" value="{{ $item->quantity }}" step="0.01" min="1" required></td>
+                                                <td><input type="number" class="form-control hsn" name="items[{{ $index }}][hsn]" value="{{ $item->hsn }}"></td>
+                                                <td><input type="number" class="form-control quantity" name="items[{{ $index }}][quantity]" value="{{ $item->quantity }}" step="0.01" min="1"></td>
                                                 <td><input type="number" class="form-control rate" name="items[{{ $index }}][rate]" value="{{ $item->rate }}" step="0.01" min="0" required></td>
                                                 <td>
                                                     <select class="form-select tax-type" name="items[{{ $index }}][tax_type]">
@@ -220,8 +220,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const newRow = `
             <tr class="item-row">
                 <td><input type="text" class="form-control" name="items[${itemIndex}][description]" required></td>
-                <td><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]" min="1" required></td>
-                <td><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" required></td>
+                <td><input type="number" class="form-control hsn" name="items[${itemIndex}][hsn]"></td>
+                <td><input type="number" class="form-control quantity" name="items[${itemIndex}][quantity]" step="0.01" min="1" value="1"></td>
                 <td><input type="number" class="form-control rate" name="items[${itemIndex}][rate]" step="0.01" min="0" required></td>
                 <td>
                     <select class="form-select tax-type" name="items[${itemIndex}][tax_type]">
