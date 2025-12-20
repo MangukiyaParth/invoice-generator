@@ -12,7 +12,7 @@
                         <form id="invoiceForm" method="POST" action="{{ route('non.gst.invoice.update', $invoice->id) }}">
                             @csrf
                             @method('PUT')
-                            <!-- Top Section: Company & Customer Selection + Invoice Details -->
+                            <!-- Top Section: Company & Customer Selection,Invoice Details -->
                             <div class="row row-gap">
                                 <!-- Left Side: Company & Customer Selection -->
                                 <div class="col-xl-6 col-12">
