@@ -29,11 +29,15 @@
                             <option value="AUD">AU$ Australian Dollar (AUD)</option>
                     </select>
                 </div>
-                <div class="mb-3 col-md-6">
+                <div class="mb-3 col-md-4">
                     <label for="name" class = "form-label">Name</label>
                     <input type="name" name="name" id="name" class="form-control" placeholder="Enter Name" >
                 </div>
-                <div class="mb-3 col-md-6">
+                <div class="mb-3 col-md-4">
+                    <label for="nick_name" class = "form-label">Nick Name</label>
+                    <input type="nick_name" name="nick_name" id="nick_name" class="form-control" placeholder="Enter Nick Name" >
+                </div>
+                <div class="mb-3 col-md-4">
                     <label for="email" class = "form-label">Email</label>
                     <input type="email" name="email" id="email" class="form-control" placeholder="Enter Email" >
                 </div>
@@ -118,6 +122,10 @@
 </script>
 <script>
 $(document).ready(function () {
+    // Auto-fill nick name when name is entered
+    $('#name').on('input', function() {
+        $('#nick_name').val($(this).val());
+    });
     $('form').on('submit', function (e) {
         let isValid = true;
         // Remove previous errors

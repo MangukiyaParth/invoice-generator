@@ -21,7 +21,7 @@
                                             <select class="form-select" name="company" id="companySelect">
                                                 <option value="">Select Company</option>
                                                 @foreach ($companies ?? [] as $company)
-                                                    <option value="{{ $company->id }}">{{ $company->name }}</option>
+                                                    <option value="{{ $company->id }}">{{ $company->name }}{{ $company->nick_name ? ' - ' . $company->nick_name : '' }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -30,7 +30,7 @@
                                             <select class="form-select" name="customer" id="customerSelect">
                                                 <option value="">Select Customer</option>
                                                 @foreach ($customers ?? [] as $customer)
-                                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                                    <option value="{{ $customer->id }}">{{ $customer->name }}{{ $customer->nick_name ? ' - ' . $customer->nick_name : '' }}</option>
                                                 @endforeach
                                             </select>
                                         </div>

@@ -68,6 +68,7 @@ class CompanyController extends Controller
 
         $company = new Company();
         $company->name = $request->name ?? null;
+        $company->nick_name = $request->nick_name ?? null;
         $company->currency = $request->currency ?? null;
         $company->email = $request->email ?? null;
         $company->address = $request->address ?? null; 
@@ -119,6 +120,7 @@ class CompanyController extends Controller
             $company->logo = $path;
         }
         $company->name = $request->name ?? null;
+        $company->nick_name = $request->nick_name ?? null;
         $company->currency = $request->currency ?? null;
         $company->email = $request->email ?? null;
         $company->address = $request->address ?? null; 

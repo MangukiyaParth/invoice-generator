@@ -22,7 +22,7 @@
                                         <select class="form-select" name="company" id="companySelect" >
                                             <option value="">Select Company</option>
                                             @foreach($companies ?? [] as $company)
-                                                <option value="{{ $company->id }}" {{ $invoice->company == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                                                <option value="{{ $company->id }}" {{ $invoice->company == $company->id ? 'selected' : '' }}>{{ $company->name }}{{ $company->nick_name ? ' - ' . $company->nick_name : '' }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -31,7 +31,7 @@
                                         <select class="form-select" name="customer" id="customerSelect" >
                                             <option value="">Select Customer</option>
                                             @foreach($customers ?? [] as $customer)
-                                                <option value="{{ $customer->id }}" {{ $invoice->customer == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
+                                                <option value="{{ $customer->id }}" {{ $invoice->customer == $customer->id ? 'selected' : '' }}>{{ $customer->name }}{{ $customer->nick_name ? ' - ' . $customer->nick_name : '' }}</option>
                                             @endforeach
                                         </select>
                                     </div>

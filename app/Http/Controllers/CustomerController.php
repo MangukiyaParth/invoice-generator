@@ -57,6 +57,7 @@ class CustomerController extends Controller
 
         $customer = new Customer();
         $customer->name = $request->name ?? null;
+        $customer->nick_name = $request->nick_name ?? null;
         $customer->email = $request->email ?? null;
         $customer->address = $request->address ?? null;
         $customer->city = $request->city ?? null;
@@ -94,6 +95,7 @@ class CustomerController extends Controller
         }
 
         $customer->name = $request->name ?? null;
+        $customer->nick_name = $request->nick_name ?? null;
         $customer->email = $request->email ?? null;
         $customer->address = $request->address ?? null;
         $customer->city = $request->city ?? null;
