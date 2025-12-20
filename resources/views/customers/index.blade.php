@@ -21,6 +21,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Nick Name</th>
                         <th>Email</th>
                         <th>GST Number</th>
                         <th>Actions</th>
@@ -42,6 +43,7 @@
             ajax: '{{ route('customers.index') }}',
             columns: [
                 { data: 'name', name: 'name' },
+                { data: 'nick_name', name: 'nick_name' },
                 {data: 'email', name: 'email'},
                 {data: 'gst_number', name: 'gst_number'},
                 { data: 'actions', name: 'actions', orderable: false, searchable: false },

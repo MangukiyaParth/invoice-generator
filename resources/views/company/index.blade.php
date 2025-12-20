@@ -21,6 +21,7 @@
                     <tr>
                         <th>Logo</th>
                         <th>Name</th>
+                        <th>Nick Name</th>
                         <th>Email</th>
                         <th>GST Number</th>
                         <th>Actions</th>
@@ -43,6 +44,7 @@
             columns: [
                 { data: 'logo', name: 'logo', orderable: false, searchable: false },
                 { data: 'name', name: 'name' },
+                { data: 'nick_name', name: 'nick_name' },
                 {data: 'email', name: 'email'},
                 {data: 'gst_number', name: 'gst_number'},
                 { data: 'actions', name: 'actions', orderable: false, searchable: false },
