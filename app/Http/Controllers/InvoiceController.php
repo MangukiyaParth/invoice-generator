@@ -110,13 +110,13 @@ class InvoiceController extends Controller
 
         $nextMaxNumber = $maxNumber ? $maxNumber + 1 : 1;
 
-        $invoiceNumber = $this->generateInvoiceNumber();
+        // $invoiceNumber = $this->generateInvoiceNumber();
 
       
         $invoice = new Invoice();
         $invoice->customer       = $request->customer;
         $invoice->company        = $request->company;
-        $invoice->invoice_number = $invoiceNumber;
+        $invoice->invoice_number = $request->invoice_number;
         $invoice->max_number     = $nextMaxNumber; 
         $invoice->invoice_date   = $request->invoice_date;
         $invoice->due_date       = $request->due_date;
@@ -190,14 +190,14 @@ class InvoiceController extends Controller
         $invoice = Invoice::findOrFail($id);
     
        
-        $invoice->customer      = $request->customer;
-        $invoice->company       = $request->company;
-        $invoice->invoice_date  = $request->invoice_date;
+        $invoice->customer       = $request->customer;
+        $invoice->company        = $request->company;
+        $invoice->invoice_date   = $request->invoice_date;
         $invoice->invoice_number = $request->invoice_number;
         $invoice->due_date       = $request->due_date;
-        $invoice->terms         = $request->terms ?? '';
-        $invoice->currency      = $request->currency ?? '';
-        $invoice->paid_amount   = $request->payment_made ?? '0';
+        $invoice->terms          = $request->terms ?? '';
+        $invoice->currency       = $request->currency ?? '';
+        $invoice->paid_amount    = $request->payment_made ?? '0';
         $invoice->type           = '1';
         $invoice->save();
 
@@ -293,7 +293,7 @@ class InvoiceController extends Controller
         $now = \Carbon\Carbon::now();
 
         // Use provided invoice number or generate new one
-        $invoiceNumber = $this->generateInvoiceNumber();
+        // $invoiceNumber = $this->generateInvoiceNumber();
 
         // Financial Year calculation
         $yearStart = $now->month >= 4 ? $now->year : $now->year - 1;
@@ -311,7 +311,7 @@ class InvoiceController extends Controller
         $invoice = new Invoice();
         $invoice->customer       = $request->customer;
         $invoice->company        = $request->company;
-        $invoice->invoice_number = $invoiceNumber;
+        $invoice->invoice_number = $request->invoice_number;
         $invoice->max_number     = $nextMaxNumber; 
         $invoice->invoice_date   = $request->invoice_date;
         $invoice->due_date       = $request->due_date;
@@ -363,13 +363,13 @@ class InvoiceController extends Controller
           
 
         
-            $invoice->customer     = $request->customer;
-            $invoice->company      = $request->company;
-            $invoice->invoice_date = $request->invoice_date;
+            $invoice->customer       = $request->customer;
+            $invoice->company        = $request->company;
+            $invoice->invoice_date   = $request->invoice_date;
             $invoice->invoice_number = $request->invoice_number;
-            $invoice->due_date     = $request->due_date;
-            $invoice->currency     = $request->currency ?? '';
-            $invoice->paid_amount  = $request->payment_made ?? '0';
+            $invoice->due_date       = $request->due_date;
+            $invoice->currency       = $request->currency ?? '';
+            $invoice->paid_amount    = $request->payment_made ?? '0';
             $invoice->type           = '2';
             $invoice->save();
 

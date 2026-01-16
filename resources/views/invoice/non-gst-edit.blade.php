@@ -111,7 +111,7 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Payment Made</label>
                                                 <input type="number" class="form-control" id="paymentMade"
-                                                    name="payment_made" step="0.01" min="0" value="{{ $invoice->payment_made ?? 0 }}"
+                                                    name="payment_made" step="0.01" min="0" value="{{ $invoice->paid_amount ?? 0 }}"
                                                     placeholder="Enter payment amount">
                                             </div>
                                         </div>

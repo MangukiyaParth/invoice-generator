@@ -25,26 +25,26 @@ class DashboardController extends Controller
         return view('dashboard', compact('totalInvoices', 'totalRevenue', 'pendingInvoices', 'paidInvoices', 'recentInvoices'));
     }
 
+   
     public function loginWithInvoice(Request $request, $id)
     {
+       
         $user = \App\Models\User::find($id);
-
-        if (! $user) {
+        
+        if (!$user) {
             abort(404, 'User not found');
         }
-
         // Verify token from main-site
         $expectedToken = hash_hmac('sha256', $id, env('APP_KEY'));
-
         if (!hash_equals($expectedToken, $request->query('token'))) {
             abort(403, 'Invalid signature.');
         }
-
         // Log in user
-        \Auth::login($user);
-
+        \Auth::login($user, true);
+        $request->session()->regenerate();
         return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
     }
+
 
     
 }

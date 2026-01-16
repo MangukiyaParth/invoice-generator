@@ -80,7 +80,7 @@
                     @yield('page-title')
                 </div>
             </div>
-           <div class="header-actions">
+           {{-- <div class="header-actions">
                 <div class="dropdown">
                     <span>{{ Auth::user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}" style="display: inline;">
@@ -89,11 +89,30 @@
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </button>
                     </form>
-                    {{-- <a href="{{ env('MAIN_SITE_URL') }}/dashboard" 
+                    <a href="{{ env('MAIN_SITE_URL') }}/dashboard" 
                     class="btn btn-outline-primary" 
                     style="margin-left: 0.5rem;">
                         <i class="fas fa-arrow-left"></i> Back to Main Site
-                    </a> --}}
+                    </a>
+                </div>
+            </div> --}}
+            <div class="header-actions">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user"></i> {{ Auth::user()->name }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </header>

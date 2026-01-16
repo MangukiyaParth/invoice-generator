@@ -62,8 +62,7 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Invoice Number</label>
                                             <input type="text" class="form-control" name="invoice_number"
-                                                id="invoice_number" value="{{ $generatedInvoiceNumber }}"
-                                                placeholder="Auto-generated invoice number">
+                                                id="invoice_number" placeholder="Enter Invoice number">
                                         </div>
                                     </div>
                                 </div>
